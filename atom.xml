@@ -334,9 +334,9 @@ private static final int MAX_EXECUTE_RESULTS = 250;
     </summary>
     
     
-      <category term="Android" scheme="http://wliu6v.github.io/tags/Android/"/>
-    
       <category term="Windows" scheme="http://wliu6v.github.io/tags/Windows/"/>
+    
+      <category term="Android" scheme="http://wliu6v.github.io/tags/Android/"/>
     
   </entry>
   
