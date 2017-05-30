@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://wliu6v.github.io/"/>
-  <updated>2017-05-30T09:05:18.426Z</updated>
+  <updated>2017-05-30T09:06:32.359Z</updated>
   <id>http://wliu6v.github.io/</id>
   
   <author>
@@ -20,7 +20,7 @@
     <link href="http://wliu6v.github.io/2017/Can-not-sync-gradle-for-kotlin-project/"/>
     <id>http://wliu6v.github.io/2017/Can-not-sync-gradle-for-kotlin-project/</id>
     <published>2017-05-30T08:49:10.000Z</published>
-    <updated>2017-05-30T09:05:18.426Z</updated>
+    <updated>2017-05-30T09:06:32.359Z</updated>
     
     <content type="html"><![CDATA[<blockquote>
 <p>需要确认 kotlin_version 是否最新</p>
@@ -38,6 +38,7 @@
 <li>升级 jdk 至最新版本（1.8.0_131）并更新环境变量</li>
 <li>将 app 的 build.gradle 中的<br>  <code>compile &quot;org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version&quot;</code><br>  替换为<br>  <code>compile &quot;org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version&quot;</code><br>  （移除 <code>-jre7</code>）  </li>
 <li>确认 AndroidStudio Setting 中的 Gradle 使用的是 default gradle wrapper 而不是自定义的</li>
+<li>移除 Setting - Plugin 中的 Kotlin 插件并重启 AndroidStudio</li>
 </ul>
 ]]></content>
     

@@ -97,7 +97,7 @@
 <meta property="og:url" content="http://wliu6v.github.io/2017/Can-not-sync-gradle-for-kotlin-project/index.html">
 <meta property="og:site_name" content="6v&#39;s blog">
 <meta property="og:description" content="需要确认 kotlin_version 是否最新">
-<meta property="og:updated_time" content="2017-05-30T09:05:18.426Z">
+<meta property="og:updated_time" content="2017-05-30T09:06:32.359Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="升级到 AndroidStudio 3.0 Canary 之后新建 Kotlin 项目无法编译的问题">
 <meta name="twitter:description" content="需要确认 kotlin_version 是否最新">
@@ -355,6 +355,7 @@
 <li>升级 jdk 至最新版本（1.8.0_131）并更新环境变量</li>
 <li>将 app 的 build.gradle 中的<br>  <code>compile &quot;org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version&quot;</code><br>  替换为<br>  <code>compile &quot;org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version&quot;</code><br>  （移除 <code>-jre7</code>）  </li>
 <li>确认 AndroidStudio Setting 中的 Gradle 使用的是 default gradle wrapper 而不是自定义的</li>
+<li>移除 Setting - Plugin 中的 Kotlin 插件并重启 AndroidStudio</li>
 </ul>
 
       
