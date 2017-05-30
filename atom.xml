@@ -1,0 +1,1093 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>6v&#39;s blog</title>
+  
+  <link href="/atom.xml" rel="self"/>
+  
+  <link href="http://wliu6v.github.io/"/>
+  <updated>2017-02-25T07:19:53.804Z</updated>
+  <id>http://wliu6v.github.io/</id>
+  
+  <author>
+    <name>6v</name>
+    <email>linvan6v@gmail.com</email>
+  </author>
+  
+  <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>为 Android 应用添加 RTL 语言支持</title>
+    <link href="http://wliu6v.github.io/2017/Android-RTL-Support/"/>
+    <id>http://wliu6v.github.io/2017/Android-RTL-Support/</id>
+    <published>2017-02-25T05:41:18.000Z</published>
+    <updated>2017-02-25T07:19:53.804Z</updated>
+    
+    <content type="html"><![CDATA[<p>对于一款面向全球用户的 Android 应用来说，进行本地化处理是十分重要的。关于本地化涉及的全部内容，可以参考 <a href="https://developer.android.com/distribute/tools/localization-checklist.html" target="_blank" rel="external">Google Developer - Localization Checklist</a> 。这里只介绍 RTL 布局中涉及的部分内容。</p>
+<h2 id="什么是-RTL-布局"><a href="#什么是-RTL-布局" class="headerlink" title="什么是 RTL 布局"></a>什么是 RTL 布局</h2><p>我们平常都是以从左到右（Left-to-Right，LTR）的方向显示文本，但是对于阿拉伯语、希伯来语等语言，他们的文字是从右向左排列的，称为 Right-to-Left 布局，简称为 RTL。当我们处理 RTL 语言的时候，需要特别注意的一点是：在 RTL 语言中，并非仅有文本框的内容需要从右到左排列，而是整个页面的内容都要镜像过来，才符合 RTL 用户的使用习惯。</p>
+<a id="more"></a>
+<p>我们可以从 iOS 10 的介绍页面上比较一下 RTL 和 LTR 布局的区别。除了所有的文本框从右到左之外，包括状态栏、Tab bar 在内的所有内容都是反向的，甚至有部分能够表达方向含义的图标，如电量和返回键的图标也是反着的。</p>
+<p><img src="/img/RTL-Support-iOS-ar-vs-cn.png" alt="阿拉伯语与中文的 iOS 10 介绍页面"></p>
+<p><em>从这两幅图中容易看出 RTL 布局与 LTR 布局在大多数元素上都是镜像的效果。</em></p>
+<h2 id="Android-对-RTL-布局的支持情况"><a href="#Android-对-RTL-布局的支持情况" class="headerlink" title="Android 对 RTL 布局的支持情况"></a>Android 对 RTL 布局的支持情况</h2><p>Android 系统从 4.2 开始引入了对双向文本的完整支持，如果应用支持的 minSdkVersion &gt;= 17 ，则可以很轻易的实现 RTL 效果。由于本人并没有特地为 4.1 及以下设备调试过 RTL 的支持，因此以下内容主要以 4.2 版本进行讲述。</p>
+<h2 id="如何实现-RTL-布局"><a href="#如何实现-RTL-布局" class="headerlink" title="如何实现 RTL 布局"></a>如何实现 RTL 布局</h2><p>实现 RTL 布局的核心思想，就是将所有 Left / Right 这种绝对方向换为 Start / End 这种相对方向。</p>
+<p>注：以下内容主要是以 <code>minSdkVersion = 17</code> 的情况下进行描述，并且是以 “为一个现有应用添加 RTL 支持” 的视角进行描述的。新创建应用的话当然亦可参考，但对于 <code>minSdkVersion &lt; 17</code> 的情况就需要注意了，许多地方要根据设备的系统版本进行额外判断。</p>
+<h3 id="1-在-AndroidManifest-xml-标明-supportsRtl-quot-true-quot"><a href="#1-在-AndroidManifest-xml-标明-supportsRtl-quot-true-quot" class="headerlink" title="1. 在 AndroidManifest.xml 标明 supportsRtl=&quot;true&quot;"></a>1. 在 AndroidManifest.xml 标明 <code>supportsRtl=&quot;true&quot;</code></h3><p>首先在 AndroidManifest.xml 文件中的 application 节点内添加 <code>android:supportsRtl=&quot;true&quot;</code> ，向系统声明当前应用能够支持 RTL 布局，这样当系统语言修改为阿拉伯语等从右到左布局时，应用的布局内容会随之发生改变。</p>
+<h3 id="2-在-layout-文件中出现的所有-left-right-属性替换为-start-end"><a href="#2-在-layout-文件中出现的所有-left-right-属性替换为-start-end" class="headerlink" title="2. 在 layout 文件中出现的所有 left / right 属性替换为 start / end"></a>2. 在 layout 文件中出现的所有 left / right 属性替换为 start / end</h3><p>包括但不限于 marginLeft / paddingLeft / alignLeftOf 等内容。通过 Android Studio 的重构功能可以简单的完成这一步骤，如下图：</p>
+<p><img src="/img/RTL-Support-refactorInAs.png" alt="利用 Android Studio 的重构功能实现 RTL Support"></p>
+<h3 id="3-需要将代码中包含绝对方向设置的代码改为相对方向"><a href="#3-需要将代码中包含绝对方向设置的代码改为相对方向" class="headerlink" title="3. 需要将代码中包含绝对方向设置的代码改为相对方向"></a>3. 需要将代码中包含绝对方向设置的代码改为相对方向</h3><p>思路跟 layout 中的修改一样。Android Studio 的重构功能似乎只能影响 layout 文件，不能处理代码中的这种内容。因此我们需要手动进行修改，需要注意以下几方面</p>
+<ul>
+<li>需要将 setMargins(left, top, right, bottom) 方法改为 setMarginStart(), setMarginEnd() 等方法。（这里很奇怪的是，从 SDK 的源码中可以看到，ViewGroup.MaringLayoutParam 类中提供了 setMarginsRelative 方法并设置了 hide 标注，不知道为什么不公开出来）</li>
+<li>TextView 的 setCompoundDrawableXXX 系列方法统一改为 setCompoundDrawableRelativeXXX 系列方法</li>
+<li>其他内容大多可以通过代码全文搜索 LEFT 以及 RIGHT 字符串之后再单独处理</li>
+</ul>
+<h3 id="4-部分资源需要提供-rtl-版本"><a href="#4-部分资源需要提供-rtl-版本" class="headerlink" title="4. 部分资源需要提供 rtl 版本"></a>4. 部分资源需要提供 rtl 版本</h3><p>如果有表示方向作用的图片资源，需要创建 -ldrtl 后缀的响应文件夹，并将提供的资源放到里面。至于有哪些图片需要修改，最典型的是返回箭头。</p>
+<h3 id="5-将原生-ViewPager-替换为支持-RTL-布局的第三方-ViewPager"><a href="#5-将原生-ViewPager-替换为支持-RTL-布局的第三方-ViewPager" class="headerlink" title="5. 将原生 ViewPager 替换为支持 RTL 布局的第三方 ViewPager"></a>5. 将原生 ViewPager 替换为支持 RTL 布局的第三方 ViewPager</h3><p>系统原生 ViewPager 有个经典 bug：在 RTL 布局中，其操作手势与滑动效果是反向的。</p>
+<p>比如我们先考虑 LTR 布局的三个页面： 1-2-3 ，在 RTL 布局中应该变为 3-2-1。通常当我们处于第 2 个页面的时候，手指从屏幕右侧往左滑动，页面会进入右侧的页面，也就是 LTR 的 3 号页面或 RTL 的 1 号页面。而因为系统原生 ViewPager 的 Bug，导致 RTL 布局中，手指向左滑动时页面也左滑，效果就很怪异。相关的讨论可以参照 <a href="https://code.google.com/p/android/issues/detail?id=56831" target="_blank" rel="external">Android Issue</a> 中的讨论，这个问题在 2013 年就被提出来过，但一直没有得到有效地修复。</p>
+<p>我们可以通过用第三方的 ViewPager 控件替换掉系统 ViewPgaer 的方式修复掉此问题。目前我在使用的库来自 <a href="https://github.com/ksloginov/RtlViewPager" target="_blank" rel="external">https://github.com/ksloginov/RtlViewPager</a> ，使用方式足够简单且有效，能够与 TabLayout 相结合。</p>
+<h3 id="6-考察-TextView-的宽度能否用-wrap-content-替换-match-parent"><a href="#6-考察-TextView-的宽度能否用-wrap-content-替换-match-parent" class="headerlink" title="6. 考察 TextView 的宽度能否用 wrap_content 替换 match_parent"></a>6. 考察 TextView 的宽度能否用 wrap_content 替换 match_parent</h3><p>系统提供的 TextView 在显示文字时是原生支持 RTL 布局的，也就是说，即使上面的内容都未实现，只是放两个全屏的 TextView，分别显示 LTR 语言文字和 RTL 语言文字，其显示方向也是不同的。反过来考虑，即使上面的内容都实现了，TextView 也是要单独考察的控件。为什么在系统对 TextView 的 RTL 拥有原生支持情况下仍然要对其特别关注呢？</p>
+<p>因为即使在 RTL 语言中，也不能保证不出现 LTR 语言内容。我们考虑这样的情况：有两个 TextView，都设置了 <code>layout_width=&quot;match_parent&quot;</code> 属性，且其中的文字内容都足够短，不能撑满屏幕。那么当这两个 TextView 一个显示 LTR 语言，一个显示 RTL 语言时，会是什么效果呢？</p>
+<p>答案如下图左方所示，LTR 语言会在文本框中居左显示，RTL 则居右，导致内容一左一右，非常难看。而将 width 改为 wrap_content 后则会如下右图样式，尽管控件内的文字显示顺序遵循了 LTR，但控件本身仍然会受到系统整体 RTL 的控制贴紧右侧。</p>
+<p><img src="/img/RTL-Support-textview-width.png" alt="TextView 的 layout_width 属性会在 LTR 与 RTL 混排情况下影响显示"></p>
+<p>至于如何在应用内找到使用了 match_parent 作为宽度属性的 TextView，我们可以通过 Android Studio 的 find in path 功能进行查找。通过构造正则表达式，将其全部列举出来并不难。问题在于不能全局统一的进行替换，而是要每个地方单独考察并尝试替换。如果页面需求的确需要 match_parent 作为宽度那也就没办法了。</p>
+<hr>
+<p>以上是为一个现有的 Android 应用添加 RTL 支持的主要步骤。目前本人也在处理 RTL 相关内容，之后一个月内有新的发现会陆续更新上来。</p>
+<h2 id="参考内容"><a href="#参考内容" class="headerlink" title="参考内容"></a>参考内容</h2><p>同文中链接内容</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;对于一款面向全球用户的 Android 应用来说，进行本地化处理是十分重要的。关于本地化涉及的全部内容，可以参考 &lt;a href=&quot;https://developer.android.com/distribute/tools/localization-checklist.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Google Developer - Localization Checklist&lt;/a&gt; 。这里只介绍 RTL 布局中涉及的部分内容。&lt;/p&gt;
+&lt;h2 id=&quot;什么是-RTL-布局&quot;&gt;&lt;a href=&quot;#什么是-RTL-布局&quot; class=&quot;headerlink&quot; title=&quot;什么是 RTL 布局&quot;&gt;&lt;/a&gt;什么是 RTL 布局&lt;/h2&gt;&lt;p&gt;我们平常都是以从左到右（Left-to-Right，LTR）的方向显示文本，但是对于阿拉伯语、希伯来语等语言，他们的文字是从右向左排列的，称为 Right-to-Left 布局，简称为 RTL。当我们处理 RTL 语言的时候，需要特别注意的一点是：在 RTL 语言中，并非仅有文本框的内容需要从右到左排列，而是整个页面的内容都要镜像过来，才符合 RTL 用户的使用习惯。&lt;/p&gt;
+    
+    </summary>
+    
+    
+      <category term="Android" scheme="http://wliu6v.github.io/tags/Android/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>如何为 DFP Ads 自动添加 Test Device Id</title>
+    <link href="http://wliu6v.github.io/2016/How-to-Add-Test-Device-Id-for-DFP-Ads/"/>
+    <id>http://wliu6v.github.io/2016/How-to-Add-Test-Device-Id-for-DFP-Ads/</id>
+    <published>2016-06-25T02:45:04.000Z</published>
+    <updated>2017-02-25T05:42:14.284Z</updated>
+    
+    <content type="html"><![CDATA[<p>在使用 DFP Ads 的时候，官方文档中会要求开发人员在测试广告的过程中必须使用测试广告 ID，并需要将测试的设备在代码中添加为测试设备才可以正常使用。但添加的过程有些麻烦：我们需要将测试设备连接至电脑，启动应用拉取广告，同时观察 logcat 中的日志，抓取到形如 <code>... addTestDevice(&quot;123456789ABCDEF0123456789ABCDEF0&quot;) ...</code> 的 log 后，将其中的 Device Id 写到代码中并重新编译才可以。如果测试设备很多，就要对每个设备都抓一遍 log，比较繁琐。因此希望能够在代码中自动抓取 DFP Ads 输出的 log，提取出 Test Device Id，并添加到代码中。这样就可以做到每个新的设备都可以在拉取一次广告后将自身加为测试设备了。</p>
+<p>实现基本如下：</p>
+<a id="more"></a>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div></pre></td><td class="code"><pre><div class="line">private void loadAd() &#123;</div><div class="line">	PublisherAdView adView = (PublisherAdView) findViewById(R.id.ad_view);</div><div class="line">	PublisherAdRequest.Builder adBuilder = new PublisherAdRequest.Builder();</div><div class="line">	adView.loadAd(adBuilder.build());</div><div class="line">	saveTestDevice();</div><div class="line">&#125;</div><div class="line"></div><div class="line">private void addTestDevice(PublisherAdRequest.Builder builder) &#123;</div><div class="line">	String testDeviceId = PreferenceManager.getDefaultSharedPreferences(context).getString(</div><div class="line">				&quot;AD_TEST_DEVICE_ID&quot;, &quot;&quot;);</div><div class="line">	if (!TextUtils.isEmpty(testDeviceId)) &#123;</div><div class="line">		builder.addTestDevice(testDeviceId);</div><div class="line">	&#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line">private void saveTestDevice() &#123;</div><div class="line">	try &#123;</div><div class="line"></div><div class="line">		ArrayList&lt;String&gt; loadLogCommand = new ArrayList();</div><div class="line">		loadLogCommand.add(&quot;logcat&quot;);       // 调用 logcat 命令</div><div class="line">		loadLogCommand.add(&quot;-d&quot;);           // 将命令的输出内容直接输出到屏幕上</div><div class="line">		loadLogCommand.add(&quot;|&quot;);            // | grep &quot;Ads&quot; 用来过滤输出的结果，仅需要观察 Ads 相关的 log</div><div class="line">		loadLogCommand.add(&quot;grep&quot;);</div><div class="line">		loadLogCommand.add(&quot;\&quot;Ads\&quot;&quot;);</div><div class="line">		</div><div class="line">		Process process = Runtime.getRuntime().exec(</div><div class="line">				loadLogCommand.toArray(new String[logLogCommand.size()]));</div><div class="line">		BufferedReader bufferedReader = new BufferedReader(</div><div class="line">				new InputStreamReader( process.getInputStream()), 1024 );</div><div class="line">		String line;</div><div class="line">		while ((line = bufferedReader.readLine()) != null) &#123;</div><div class="line">			if (line.contains(&quot;addTestDevice&quot;)) &#123;</div><div class="line">				int index = line.indexOf(&quot;(\&quot;&quot;) + 2;</div><div class="line">				String testDeviceId = line.substring(index, index + 32);</div><div class="line">				if (!TextUtils.isEmpty(testDeviceId)) &#123;</div><div class="line">					PreferenceManager.getDefaultSharedPreferences(context).edit().putString(</div><div class="line">						&quot;AD_TEST_DEVICE_ID&quot;, testDeviceId).apply();</div><div class="line">				&#125;</div><div class="line">				break;</div><div class="line">			&#125;</div><div class="line">		&#125;</div><div class="line"></div><div class="line"></div><div class="line">		Arraylist&lt;String&gt; clearLogCommand = new ArrayList();</div><div class="line">		clearLogCommand.add(&quot;logcat&quot;);      // 清空 logcat 输出内容</div><div class="line">		clearLogCommand.add(&quot;-c&quot;);</div><div class="line">		Runtime.getRuntime().exec(clearLogCommand.toArray(new String[clearLogCommand.size()]));</div><div class="line"></div><div class="line">	&#125; catch (Exception e) &#123;</div><div class="line">		e.printStackTrace();</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="备注"><a href="#备注" class="headerlink" title="备注"></a>备注</h3><ul>
+<li>一些网上的教程说需要添加 READ_LOGS 的 permission 以获取读取日志的权限。但实际上，如果只是获取当前应用所生成的 log，似乎并不需要此权限。（况且读其他应用的日志，在 4.1 以上的 Android 系统中也需要 root 才能实现）</li>
+<li>clearLog 那个命令，据说如果不清理日志的话，任何操作都将产生新的日志并导致代码进入死循环。。不过实际上也没有出现，我猜测是如果要在 while 语句中输出 log 的话需要调用此命令，否则无所谓。</li>
+</ul>
+<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="http://www.cnblogs.com/mataojin/archive/2011/11/07/2239260.html" target="_blank" rel="external">博客园 - 马涛 - 如何获取 android 的系统日志 logcat</a></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;在使用 DFP Ads 的时候，官方文档中会要求开发人员在测试广告的过程中必须使用测试广告 ID，并需要将测试的设备在代码中添加为测试设备才可以正常使用。但添加的过程有些麻烦：我们需要将测试设备连接至电脑，启动应用拉取广告，同时观察 logcat 中的日志，抓取到形如 &lt;code&gt;... addTestDevice(&amp;quot;123456789ABCDEF0123456789ABCDEF0&amp;quot;) ...&lt;/code&gt; 的 log 后，将其中的 Device Id 写到代码中并重新编译才可以。如果测试设备很多，就要对每个设备都抓一遍 log，比较繁琐。因此希望能够在代码中自动抓取 DFP Ads 输出的 log，提取出 Test Device Id，并添加到代码中。这样就可以做到每个新的设备都可以在拉取一次广告后将自身加为测试设备了。&lt;/p&gt;
+&lt;p&gt;实现基本如下：&lt;/p&gt;
+    
+    </summary>
+    
+    
+      <category term="Android" scheme="http://wliu6v.github.io/tags/Android/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>一个神奇的 Bug：在 Win10 中使用 MacType 导致 Git rebase 命令出现问题</title>
+    <link href="http://wliu6v.github.io/2016/A-bug-when-use-MacType-in-Win10/"/>
+    <id>http://wliu6v.github.io/2016/A-bug-when-use-MacType-in-Win10/</id>
+    <published>2016-05-22T08:22:10.000Z</published>
+    <updated>2016-05-22T08:51:30.404Z</updated>
+    
+    <content type="html"><![CDATA[<p>之前换了浏览器，然后突然想试试看 MacType 。查了一下发现 MacType 并不支持 Win10，但它没有说为什么不支持，我就强行装了一个用了用。刚开始用的时候感觉还行，虽然碰到一些权限问题，但基本上能用。结果用着用着突然发现我的 Git 无法正常的执行 rebase 操作了。比如，在 b 分支上执行 git rebase a，结果实际效果却似乎是在 b 上执行了 git rebase origin/b。而且 rebase 过程中碰到了冲突之后会卡主，即使冲突解决了也无法 git rebase –continue，甚至连 git rebase –abort 也不行。命令行会一直卡在 rebase 的过程状态。</p>
+<p>刚碰到这个问题的时候我查了很久也没找到解决方案，而且除了 git 命令行之外，我还尝试了在 git gui 中与 source tree 中使用 rebase 功能，效果都一样。最后想破了头想到，这个问题好像是启用了 MacType 之后才引起的。卸载 MacType 并重启之后，git rebase 就正常了。</p>
+<a id="more"></a>
+<p>感觉这问题简直是坑啊。。。 太莫名其妙了。也许跟我 MacType 的管理员权限设置也有一定关系，不知道其他人在 Win10 下用 MacType 的时候有没有遇到同类问题，有的话一定告诉我。</p>
+<p>顺便写一下卡在 rebase 的过程是如何解决的：首先确认当前的代码状态是正常的（防止丢代码啊），然后移除 <code>.git/rebase-merge</code> 或者 <code>.git/rebase-apply</code> 即可。处于冲突状态的文件可以直接 reset 掉。ref ： <a href="http://stackoverflow.com/questions/3685001/git-how-to-fix-corrupted-interactive-rebase" target="_blank" rel="external">http://stackoverflow.com/questions/3685001/git-how-to-fix-corrupted-interactive-rebase</a></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;之前换了浏览器，然后突然想试试看 MacType 。查了一下发现 MacType 并不支持 Win10，但它没有说为什么不支持，我就强行装了一个用了用。刚开始用的时候感觉还行，虽然碰到一些权限问题，但基本上能用。结果用着用着突然发现我的 Git 无法正常的执行 rebase 操作了。比如，在 b 分支上执行 git rebase a，结果实际效果却似乎是在 b 上执行了 git rebase origin/b。而且 rebase 过程中碰到了冲突之后会卡主，即使冲突解决了也无法 git rebase –continue，甚至连 git rebase –abort 也不行。命令行会一直卡在 rebase 的过程状态。&lt;/p&gt;
+&lt;p&gt;刚碰到这个问题的时候我查了很久也没找到解决方案，而且除了 git 命令行之外，我还尝试了在 git gui 中与 source tree 中使用 rebase 功能，效果都一样。最后想破了头想到，这个问题好像是启用了 MacType 之后才引起的。卸载 MacType 并重启之后，git rebase 就正常了。&lt;/p&gt;
+    
+    </summary>
+    
+    
+      <category term="Windows" scheme="http://wliu6v.github.io/tags/Windows/"/>
+    
+      <category term="Git" scheme="http://wliu6v.github.io/tags/Git/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Multi-Flavor in Android Studio</title>
+    <link href="http://wliu6v.github.io/2016/Multi-Flavor-in-Android-Studio/"/>
+    <id>http://wliu6v.github.io/2016/Multi-Flavor-in-Android-Studio/</id>
+    <published>2016-05-22T07:34:41.000Z</published>
+    <updated>2016-07-06T06:10:47.804Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="如何为多个-Flavor-配置不同权限"><a href="#如何为多个-Flavor-配置不同权限" class="headerlink" title="如何为多个 Flavor 配置不同权限"></a>如何为多个 Flavor 配置不同权限</h2><p>Multi-Flavor 的一个重要功能是针对于不同的 Flavor 加载不同的代码。通过此功能，我们可以实现为多个 Flavor 配置不同应用权限的效果。</p>
+<p>具体方式可参考这篇文章：<a href="https://futurestud.io/blog/how-to-implement-product-flavor-dependent-permissions" target="_blank" rel="external">Android: How to Implement ProductFlavor-Dependent Permissions with Gradle</a> .</p>
+<p>通过这种方式，我们可以将所有 Flavor 共有的部分放在默认的 AndroidManifest 文件中，然后针对不同的 Flavor 再实现各自额外的内容。在编译对应 Flavor 的时候，其各自的 AndroidManifest 文件会跟默认的 AndroidManifest 文件合并，相同节点的内容会合并到一起。非常方便。</p>
+<a id="more"></a>
+<p>但是上述教程的代码结构是针对于 Android Studio 的代码结构的。如果是 Eclipse 结构的代码，我们需要将目录结构调整为如下所示：</p>
+<pre><code>module 
+    - AndroidManifest.xml
+    - src
+    - res
+    - flavor1
+        └ AndroidManifest.xml 
+    - flavor2
+        └ AndroidManifest.xml
+</code></pre><p>然后还要在 build.gradle 中添加 sourceSets 字段：</p>
+<pre><code>sourceSets {
+    main {
+        manifest.srcFile &apos;AndroidManifest.xml&apos;
+        java.srcDirs = [&apos;src&apos;]
+        resources.srcDirs = [&apos;src&apos;]
+        aidl.srcDirs = [&apos;src&apos;]
+        renderscript.srcDirs = [&apos;src&apos;]
+        res.srcDirs = [&apos;res&apos;]
+        assets.srcDirs = [&apos;assets&apos;]
+    }
+
+    flavor1Flavor {
+        manifest.srcFile &apos;flavor1/AndroidManifest.xml&apos;
+    }
+
+    flavor2Flavor {
+        manifest.srcFile &apos;flavor2/AndroidManifest.xml&apos;
+        java.srcDirs = [&apos;flavor2/src&apos;]
+    }
+
+    // Move the tests to tests/java, tests/res, etc...
+    instrumentTest.setRoot(&apos;tests&apos;)
+
+    debug.setRoot(&apos;build-types/debug&apos;)
+    release.setRoot(&apos;build-types/release&apos;)
+}
+</code></pre><h2 id="如何为多个-Flavor-配置不同的-url-scheme"><a href="#如何为多个-Flavor-配置不同的-url-scheme" class="headerlink" title="如何为多个 Flavor 配置不同的 url-scheme"></a>如何为多个 Flavor 配置不同的 url-scheme</h2><p>原理跟上面一样，只要在各自的 AndroidManifest 写上不同的 url-scheme 即可。基本思路如下：</p>
+<h3 id="1-默认-AndroidManifest-xml"><a href="#1-默认-AndroidManifest-xml" class="headerlink" title="1. 默认 AndroidManifest.xml"></a>1. 默认 AndroidManifest.xml</h3><pre><code>&lt;manifest&gt;
+    &lt;uses-permission /&gt;
+    &lt;application&gt;
+        &lt;activity&gt;
+            &lt;intent-filter&gt; intent 1 &lt;/intent-filter&gt;
+        &lt;/activity&gt;
+    &lt;/application&gt;
+&lt;/manifest&gt;
+</code></pre><h3 id="2-Flavor1-AndroidManifest-xml"><a href="#2-Flavor1-AndroidManifest-xml" class="headerlink" title="2. Flavor1/AndroidManifest.xml"></a>2. Flavor1/AndroidManifest.xml</h3><pre><code>&lt;manifest&gt;
+    &lt;uses-permission /&gt;
+    &lt;application&gt;
+        &lt;activity&gt;
+            &lt;intent-filter&gt; intent 2 &lt;/intent-filter&gt;
+        &lt;/activity&gt;
+    &lt;/application&gt;
+&lt;/manifest&gt;
+</code></pre><h3 id="3-Flavor2-AndroidManifest-xml"><a href="#3-Flavor2-AndroidManifest-xml" class="headerlink" title="3. Flavor2/AndroidManifest.xml"></a>3. Flavor2/AndroidManifest.xml</h3><pre><code>&lt;manifest&gt;
+    &lt;uses-permission /&gt;
+    &lt;application&gt;
+        &lt;activity&gt;
+            &lt;intent-filter&gt; intent 3 &lt;/intent-filter&gt;
+            &lt;intent-filter&gt; intent 4 &lt;/intent-filter&gt;
+            &lt;intent-filter&gt; intent 5 &lt;/intent-filter&gt;
+            &lt;intent-filter&gt; intent 6 &lt;/intent-filter&gt;
+        &lt;/activity&gt;
+    &lt;/application&gt;
+&lt;/manifest&gt;
+</code></pre><h2 id="如何切换当前编译的-Flavor"><a href="#如何切换当前编译的-Flavor" class="headerlink" title="如何切换当前编译的 Flavor"></a>如何切换当前编译的 Flavor</h2><p>在 Android Studio 的 Menu 中找到 View -&gt; Tool Windows -&gt; Build Variants， 然后将对应 Module 的 BuildVariant 进行修改即可。对于每个 Flavor，都会生成 Debug 和 Release 两种编译方式。选择时需注意。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;如何为多个-Flavor-配置不同权限&quot;&gt;&lt;a href=&quot;#如何为多个-Flavor-配置不同权限&quot; class=&quot;headerlink&quot; title=&quot;如何为多个 Flavor 配置不同权限&quot;&gt;&lt;/a&gt;如何为多个 Flavor 配置不同权限&lt;/h2&gt;&lt;p&gt;Multi-Flavor 的一个重要功能是针对于不同的 Flavor 加载不同的代码。通过此功能，我们可以实现为多个 Flavor 配置不同应用权限的效果。&lt;/p&gt;
+&lt;p&gt;具体方式可参考这篇文章：&lt;a href=&quot;https://futurestud.io/blog/how-to-implement-product-flavor-dependent-permissions&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Android: How to Implement ProductFlavor-Dependent Permissions with Gradle&lt;/a&gt; .&lt;/p&gt;
+&lt;p&gt;通过这种方式，我们可以将所有 Flavor 共有的部分放在默认的 AndroidManifest 文件中，然后针对不同的 Flavor 再实现各自额外的内容。在编译对应 Flavor 的时候，其各自的 AndroidManifest 文件会跟默认的 AndroidManifest 文件合并，相同节点的内容会合并到一起。非常方便。&lt;/p&gt;
+    
+    </summary>
+    
+    
+      <category term="Android" scheme="http://wliu6v.github.io/tags/Android/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Add stetho in Android Apps</title>
+    <link href="http://wliu6v.github.io/2016/Add-stetho-in-Android-Apps/"/>
+    <id>http://wliu6v.github.io/2016/Add-stetho-in-Android-Apps/</id>
+    <published>2016-05-20T10:01:59.000Z</published>
+    <updated>2016-05-24T03:40:57.819Z</updated>
+    
+    <content type="html"><![CDATA[<p><a href="http://facebook.github.io/stetho/" target="_blank" rel="external">Stetho</a> 是 Facebook 提供的一个面向 Android App 的调试工具。在配置好 Stetho 之后，我们可以在 Chrome 中对特定应用进行调试，功能包括：查看数据库与 SharedPerferences、查看网络请求、查看当前视图布局（hierarchy view）等等，甚至可以通过 JavaScript 调用 Android App 中的部分命令。</p>
+<a id="more"></a>
+<h2 id="如何集成"><a href="#如何集成" class="headerlink" title="如何集成"></a>如何集成</h2><p>可以参照 <a href="http://facebook.github.io/stetho/" target="_blank" rel="external">Stetho 官方网页</a>。<br>步骤基本上就两三步：</p>
+<ol>
+<li>在 build.gradle 添加 stetho 的依赖。</li>
+<li>在 Application 初始化的时候添加 stetho 的初始化代码。</li>
+</ol>
+<p>这两步完成之后可以实现除抓包之外的大部分功能。<br>要实现抓包，需要根据使用的网络请求库进行特定的配置。比如用的如果是 OkHttp 的话，就需要添加 stetho-okhttp 的依赖，并且在初始化 OkHttp 的时候添加对 Stetho 的 Interceptor。</p>
+<p>具体的步骤可以参照其他人的教程：</p>
+<p><a href="http://stormzhang.com/android/2015/03/05/android-debug-use-chrome/" target="_blank" rel="external">http://stormzhang.com/android/2015/03/05/android-debug-use-chrome/</a><br><a href="http://blog.csdn.net/sbsujjbcy/article/details/45420475" target="_blank" rel="external">http://blog.csdn.net/sbsujjbcy/article/details/45420475</a></p>
+<h2 id="如何仅在-Debug-下启用-Stetho"><a href="#如何仅在-Debug-下启用-Stetho" class="headerlink" title="如何仅在 Debug 下启用 Stetho"></a>如何仅在 Debug 下启用 Stetho</h2><p>之前已经有很多人写过关于基本的如何集成 Stetho 及其使用方式。这里我着重描述如何仅在 Debug 版本中使用 Stetho。</p>
+<p>Stetho 是一个调试工具，其大部分使用场景都仅限于开发阶段。如果在 Release 中也导入 Stetho 的话，会导致应用体积变大，并有可能使应用的安全性降低。因此我们需要仅在 Debug 版本中使用 Stetho。</p>
+<p>基本方法分为两步：</p>
+<ol>
+<li>在 build.gradle 添加依赖的时候，使用 debugCompile 而不是 compile</li>
+<li>分别在 debug 和 release 代码目录中创建 Stetho 初始化类，然后在 Application 初始化的时候使用该 Stetho 初始化类进行初始化。</li>
+</ol>
+<p>如果项目采用的是 Android Studio 的代码结构，并且 OkHttp 直接在项目中，那么只要参照这篇教程即可： <a href="http://stackoverflow.com/questions/30172308/include-stetho-only-in-the-debug-build-variant/31483962#31483962" target="_blank" rel="external">http://stackoverflow.com/questions/30172308/include-stetho-only-in-the-debug-build-variant/31483962#31483962</a></p>
+<p>但我在我的项目中按照此教程进行操作的时候碰到三个问题，下面分别讲述</p>
+<h2 id="问题一：debug-目录可以识别，但-release-目录无法正常识别出-java-代码"><a href="#问题一：debug-目录可以识别，但-release-目录无法正常识别出-java-代码" class="headerlink" title="问题一：debug 目录可以识别，但 release 目录无法正常识别出 java 代码"></a>问题一：debug 目录可以识别，但 release 目录无法正常识别出 java 代码</h2><p>当我们创建 debug 目录和 release 目录时，有时候会出现其中一个目录中的 java 文件无法被正常识别为 java class 的情况。此时需要注意，该目录与 build variant 的编译方式是同步的。当我们以 debug 方式编译的时候，Android studio 可以识别 debug 目录，但是无法识别 release 目录。反之亦然。</p>
+<h2 id="问题二：OkHttp-是以-Library-方式添加，无法以-debug-方式进行编译"><a href="#问题二：OkHttp-是以-Library-方式添加，无法以-debug-方式进行编译" class="headerlink" title="问题二：OkHttp 是以 Library 方式添加，无法以 debug 方式进行编译"></a>问题二：OkHttp 是以 Library 方式添加，无法以 debug 方式进行编译</h2><p>对于 Library 的 Module，默认总是会以 Release 进行编译，即使在编译的时候选择的 Debug 也没用。为了防止这一情况，我们需要在 Library 的 build.gradle 中添加以下内容：</p>
+<pre><code>publishNonDefault true
+</code></pre><p>然后在主 Module 中将对改 library 的依赖改为：</p>
+<pre><code>debugCompile project(path: &apos;:foo_library&apos;, configuration: &apos;debug&apos;)
+releaseCompile project(path: &apos;:foo_library&apos;, configuration: &apos;release&apos;)
+</code></pre><p>即可正常的以 debug 方式编译 library 了。其他的要点同上</p>
+<h2 id="问题三：项目结构是-Eclipse-结构而非-Android-Studio-结构"><a href="#问题三：项目结构是-Eclipse-结构而非-Android-Studio-结构" class="headerlink" title="问题三：项目结构是 Eclipse 结构而非 Android Studio 结构"></a>问题三：项目结构是 Eclipse 结构而非 Android Studio 结构</h2><p>在 Android Studio 结构的代码中，debug 目录是 <code>src/debug/java/</code>，release 目录是 <code>src/release/java/</code> </p>
+<p>而在 Eclipse 的代码结构中，debug 目录是 <code>build-types/debug/java/</code>, release 目录是 <code>build-types/release/java/</code></p>
+<p>基本结构如下图所示：</p>
+<pre><code>module
+    - build-types
+        - debug
+            - java
+                - com
+                    - package.name
+        - release
+            - ...
+    - src
+        - com
+            - package.name
+</code></pre><hr>
+<h2 id="其他的问题"><a href="#其他的问题" class="headerlink" title="其他的问题"></a>其他的问题</h2><p>我会将使用 Stetho 过程中碰到的其他问题陆续更新在这里。</p>
+<h3 id="Database-中内容显示不全"><a href="#Database-中内容显示不全" class="headerlink" title="Database 中内容显示不全"></a>Database 中内容显示不全</h3><p>使用 Stetho 查看 Database 时，显示的行数被限制在 250 行，代码在 <a href="https://github.com/facebook/stetho/blob/master/stetho/src/main/java/com/facebook/stetho/inspector/protocol/module/Database.java#L54" target="_blank" rel="external">stetho/stetho/src/main/java/com/facebook/stetho/inspector/protocol/module/Database.java</a> 中：</p>
+<pre><code>/**
+ * The protocol doesn&apos;t offer an efficient means of pagination or anything like that so
+ * we&apos;ll just cap the result list to some arbitrarily large number that I think folks will
+ * actually need in practice.
+ * &lt;p&gt;
+ * Note that when this limit is exceeded, a dummy row will be introduced that indicates
+ * truncation occurred.
+ */
+private static final int MAX_EXECUTE_RESULTS = 250;
+</code></pre><p>因此我们要查看 database 的时候可能需要自己编写 SQL 语句进行查询。方法是选中某个 database（而非某个 Table）并在右侧光标处输入语句进行查询。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;&lt;a href=&quot;http://facebook.github.io/stetho/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Stetho&lt;/a&gt; 是 Facebook 提供的一个面向 Android App 的调试工具。在配置好 Stetho 之后，我们可以在 Chrome 中对特定应用进行调试，功能包括：查看数据库与 SharedPerferences、查看网络请求、查看当前视图布局（hierarchy view）等等，甚至可以通过 JavaScript 调用 Android App 中的部分命令。&lt;/p&gt;
+    
+    </summary>
+    
+    
+      <category term="Android" scheme="http://wliu6v.github.io/tags/Android/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Android Annotation</title>
+    <link href="http://wliu6v.github.io/2015/Android-Annotation/"/>
+    <id>http://wliu6v.github.io/2015/Android-Annotation/</id>
+    <published>2015-12-20T09:57:44.000Z</published>
+    <updated>2016-05-28T01:59:21.133Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="IntDef"><a href="#IntDef" class="headerlink" title="IntDef"></a>IntDef</h2><p>通过 <code>@IntDef</code> 标注可以限定一个方法的输入输出内容。</p>
+<p>枚举类型可以很好的限定值的范围，但是据说（没自己验证过- -）是有性能问题。在很多情况下，可以通过自定义的 <code>@IntDef</code> 和 <code>@StringDef</code> 来替代枚举类型。而且用起来也比在枚举类型里面实现 valueOf 等方法要简洁少许。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">IceCreamFlavourManager</span> </span>&#123;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">int</span> flavour;</div><div class="line"></div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> VANILLA = <span class="number">0</span>;</div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> CHOCOLATE = <span class="number">1</span>;</div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> STRAWBERRY = <span class="number">2</span>;</div><div class="line"></div><div class="line">    <span class="meta">@IntDef</span>(&#123;VANILLA, CHOCOLATE, STRAWBERRY&#125;)</div><div class="line">    <span class="keyword">public</span> <span class="meta">@interface</span> Flavour &#123;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Flavour</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getFlavour</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> flavour;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setFlavour</span><span class="params">(@Flavour <span class="keyword">int</span> flavour)</span> </span>&#123;</div><div class="line">        <span class="keyword">this</span>.flavour = flavour;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>]]></content>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;IntDef&quot;&gt;&lt;a href=&quot;#IntDef&quot; class=&quot;headerlink&quot; title=&quot;IntDef&quot;&gt;&lt;/a&gt;IntDef&lt;/h2&gt;&lt;p&gt;通过 &lt;code&gt;@IntDef&lt;/code&gt; 标注可以限定一个方法的输入输出内容。&lt;/p&gt;
+&lt;p&gt;枚举类型
+    
+    </summary>
+    
+    
+      <category term="Android" scheme="http://wliu6v.github.io/tags/Android/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Android Studio Can&#39;t Build After Change Default Code Page of Windows Console to UTF-8</title>
+    <link href="http://wliu6v.github.io/2015/Android-Studio-Can-t-Build-After-Change-Default-Code-Page-of-Windows-Console-to-UTF-8/"/>
+    <id>http://wliu6v.github.io/2015/Android-Studio-Can-t-Build-After-Change-Default-Code-Page-of-Windows-Console-to-UTF-8/</id>
+    <published>2015-04-06T08:16:50.000Z</published>
+    <updated>2015-04-06T08:35:06.291Z</updated>
+    
+    <content type="html"><![CDATA[<p>在 Windows 环境下进行 Android 开发的时候，如果修改了 CMD 的默认代码页，将会导致 Android Studio 无法正常编译。因为修改了默认代码页后会导致 <code>C:\Windows\System32\find.exe</code> 失效。</p>
+<p>将 CMD 的默认代码页修改回默认值即可。在简体中文环境下该默认值通常是 <code>chcp 936</code>。</p>
+<p>如果就是希望每次使用 CMD 的时候都是 UTF-8 代码页，可以建一个 bat 文件，如 <code>cmd_65001</code>，并将其添加至环境变量中。bat 文件的内容为 ：</p>
+<pre><code>C:\Windows\System32\cmd.exe /k CHCP 65001
+</code></pre><p>这样每次只要在运行里面输入 cmd_65001 ，就可以开启一个 UTF-8 代码页的 CMD 窗口了。</p>
+<p>不过好像不能改字体- =</p>
+<p><a href="http://superuser.com/questions/269818/change-default-code-page-of-windows-console-to-utf-8" target="_blank" rel="external">Ref : superuser - Change default code page of Windows console to UTF-8</a><br><a href="http://superuser.com/questions/176737/why-find-exe-not-work-in-windows-7" target="_blank" rel="external">Ref : superuser - Why find.exe not work in Windows 7?</a></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;在 Windows 环境下进行 Android 开发的时候，如果修改了 CMD 的默认代码页，将会导致 Android Studio 无法正常编译。因为修改了默认代码页后会导致 &lt;code&gt;C:\Windows\System32\find.exe&lt;/code&gt; 失效。&lt;/p
+    
+    </summary>
+    
+    
+      <category term="Windows" scheme="http://wliu6v.github.io/tags/Windows/"/>
+    
+      <category term="Android" scheme="http://wliu6v.github.io/tags/Android/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Set onClickListener for EditText in ActionBar&#39;s SearchView</title>
+    <link href="http://wliu6v.github.io/2015/Set-onClickListener-for-EditText-in-ActionBar-s-SearchView/"/>
+    <id>http://wliu6v.github.io/2015/Set-onClickListener-for-EditText-in-ActionBar-s-SearchView/</id>
+    <published>2015-04-06T08:14:05.000Z</published>
+    <updated>2015-12-20T10:00:43.190Z</updated>
+    
+    <content type="html"><![CDATA[<p>要为 ActionBar 上的 SearchView 的 EditText 设置 onClickListener，可以考虑通过递归的方式为 SearchView 的所有子 View / ViewGroup 设置 onClickListener。代码如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">setOnClickListenerForViewGroup</span><span class="params">(View v, View.OnClickListener listener)</span> </span>&#123;</div><div class="line">	<span class="keyword">if</span> (v <span class="keyword">instanceof</span> ViewGroup) &#123;</div><div class="line">		ViewGroup group = (ViewGroup)v;</div><div class="line">		<span class="keyword">int</span> count = group.getChildCount();</div><div class="line">		<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; count; i++) &#123;</div><div class="line">			View child = group.getChildAt(i);</div><div class="line">			<span class="keyword">if</span> (child <span class="keyword">instanceof</span> LinearLayout || child <span class="keyword">instanceof</span> RelativeLayout) &#123;</div><div class="line">				setOnClickListenerForViewGroup(child, listener);</div><div class="line">			&#125;</div><div class="line"></div><div class="line">			<span class="keyword">if</span> (child <span class="keyword">instanceof</span> TextView) &#123;</div><div class="line">				TextView text = (TextView)child;</div><div class="line">				text.setFocusable(<span class="keyword">false</span>);</div><div class="line">			&#125;</div><div class="line">			child.setOnClickListener(listener);</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>当然也可以通过类似的方式获取到 EditText 对象，并对其设置 onClickListener() </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> EditText <span class="title">getEditTextFromSearchView</span><span class="params">(View v)</span> </span>&#123;</div><div class="line">	EditText et = <span class="keyword">null</span>;</div><div class="line">	<span class="keyword">if</span> (v <span class="keyword">instanceof</span> ViewGroup) &#123;</div><div class="line">		ViewGroup group = (ViewGroup)v;</div><div class="line">		<span class="keyword">int</span> count = group.getChildCount();</div><div class="line">		<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; count; i++) &#123;</div><div class="line">			View child = group.getChildAt(i);</div><div class="line">			<span class="keyword">if</span> (child <span class="keyword">instanceof</span> LinearLayout || child <span class="keyword">instanceof</span> RelativeLayout) &#123;</div><div class="line">				EditText tmpEt = getEditTextFromSearchView(child);</div><div class="line">				<span class="keyword">if</span> (tmpEt != <span class="keyword">null</span>) &#123;</div><div class="line">					et = tmpEt;</div><div class="line">				&#125;</div><div class="line">			&#125;</div><div class="line"></div><div class="line">			<span class="keyword">if</span> (child <span class="keyword">instanceof</span> EditText) &#123;</div><div class="line">				et = (EditText) child;</div><div class="line">			&#125;</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line">	<span class="keyword">return</span> et;</div><div class="line">&#125;</div></pre></td></tr></table></figure>]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;要为 ActionBar 上的 SearchView 的 EditText 设置 onClickListener，可以考虑通过递归的方式为 SearchView 的所有子 View / ViewGroup 设置 onClickListener。代码如下：&lt;/p&gt;
+&lt;figu
+    
+    </summary>
+    
+    
+      <category term="Android" scheme="http://wliu6v.github.io/tags/Android/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Preference Crash When getSummary() Contains &#39;%&#39;</title>
+    <link href="http://wliu6v.github.io/2015/Preference-Crash-When-getSummary-Contains/"/>
+    <id>http://wliu6v.github.io/2015/Preference-Crash-When-getSummary-Contains/</id>
+    <published>2015-04-06T08:11:48.000Z</published>
+    <updated>2015-04-06T08:12:25.493Z</updated>
+    
+    <content type="html"><![CDATA[<p>当 ListPreference 中执行 getSummary 的时候碰到了字符 ‘%’ 时会导致应用 crash。</p>
+<h3 id="解决方式"><a href="#解决方式" class="headerlink" title="解决方式"></a>解决方式</h3><p>重写 ListPreference 的 getSummary 方法，避免在遇到 ‘%’ 的时候 crash。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div></pre></td><td class="code"><pre><div class="line">	private class NoneFormatSummaryListPreference extends ListPreference &#123;</div><div class="line"></div><div class="line">		public NoneFormatSummaryListPreference(Context context) &#123;</div><div class="line">			super(context);</div><div class="line">		&#125;</div><div class="line"></div><div class="line">		@Override</div><div class="line">		public CharSequence getSummary() &#123;</div><div class="line">			try &#123;</div><div class="line">				// for call super.super.getSummary()</div><div class="line">				CharSequence[] entries = super.getEntries();</div><div class="line">				super.setEntries(null);</div><div class="line">				CharSequence result = super.getSummary();</div><div class="line">				super.setEntries(entries);</div><div class="line">				return result;</div><div class="line">				// return super.getSummary();</div><div class="line">			&#125; catch (Exception e) &#123;</div><div class="line">				e.printStackTrace();</div><div class="line">				return "";</div><div class="line">			&#125;</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line">``` </div><div class="line"></div><div class="line">###	原理</div><div class="line"></div><div class="line">以下内容皆引用自 [Preference Summary or Secondary Text](http://gmariotti.blogspot.sg/2013/02/preference-summary-or-secondary-text.html) :</div><div class="line"></div><div class="line">__A note about ListPreference.__ In [android doc](http://developer.android.com/reference/android/preference/ListPreference.html#setSummary%28java.lang.CharSequence%29) we can read:</div><div class="line"></div><div class="line">&gt; If the summary has a String formatting marker in it (i.e. “%s” or “%1$s”), then the current entry value will be substituted in its place when it’s retrieved.</div><div class="line"></div><div class="line">As a result, if you set “summary” that contains “%” char (like "5%"), you can have java.util.UnknownFormatConversionException: Conversion: because it may be an unknown format.</div><div class="line">The reason is here (standard method in ListPreference)</div></pre></td></tr></table></figure>
+<p>@Override<br>public CharSequence getSummary() {<br>    final CharSequence entry = getEntry();<br>    if (mSummary == null || entry == null) {<br>        return super.getSummary();<br>    } else {<br>        return String.format(mSummary, entry);<br>    }<br>}<br>```</p>
+<p>If you want to use value like “5%” in ListPreference, in API Level 11 or higher, you need to be careful.<br>I suggest you create a subclass of ListPreference, override getSummary() method and return whatever you need, skipping the call to String.format().<br>Alternatively you can obtain percent character in String.format() by specifying “%%”. </p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;当 ListPreference 中执行 getSummary 的时候碰到了字符 ‘%’ 时会导致应用 crash。&lt;/p&gt;
+&lt;h3 id=&quot;解决方式&quot;&gt;&lt;a href=&quot;#解决方式&quot; class=&quot;headerlink&quot; title=&quot;解决方式&quot;&gt;&lt;/a&gt;解决方式&lt;/h3
+    
+    </summary>
+    
+    
+      <category term="Android" scheme="http://wliu6v.github.io/tags/Android/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Integer.getInteger()</title>
+    <link href="http://wliu6v.github.io/2015/Integer-getInteger/"/>
+    <id>http://wliu6v.github.io/2015/Integer-getInteger/</id>
+    <published>2015-04-06T08:09:55.000Z</published>
+    <updated>2015-04-06T08:11:00.413Z</updated>
+    
+    <content type="html"><![CDATA[<p>Integer 类中包含三个名字比较相近的静态方法 : <code>getInteger()</code>, <code>valueOf()</code>, <code>parseInt()</code> 。这三个方法名字差不多，但实际上，getInteger 方法是个坑。</p>
+<p>valueOf() 与 parseInt() 这两个方法效果比较接近。都是将某个 String 转为数值类型。其中，valueOf() 方法将会把 int 或 String 转成 Integer 类型，parseInt() 方法将会把 String 转成 int 类型。</p>
+<p>但对于 getInteger() 并非如此。JAVADoc 对 getInteger() 方法的描述是：</p>
+<blockquote>
+<p>   Returns the Integer value of the system property identified by string.<br>   Returns null if string is null or empty, if the property can not be found or if its value can not be parsed as an integer.</p>
+<p>   Parameters</p>
+<p>   string<br>       the name of the requested system property.</p>
+<p>   Returns<br>       the requested property’s value as an Integer or null.</p>
+</blockquote>
+<p>因此如果对一个任意数值字符串使用 getInteger() 方法，结果通常为 <code>null</code>。</p>
+<p>类似的， <code>Boolean.getBoolean(&quot;true&quot;);</code> 将得到结果 <code>Boolean.FALSE</code>。</p>
+<p><a href="http://konigsberg.blogspot.com/2008/04/integergetinteger-are-you-kidding-me.html" target="_blank" rel="external">Ref : Integer.getInteger. Are you kidding me?</a></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;Integer 类中包含三个名字比较相近的静态方法 : &lt;code&gt;getInteger()&lt;/code&gt;, &lt;code&gt;valueOf()&lt;/code&gt;, &lt;code&gt;parseInt()&lt;/code&gt; 。这三个方法名字差不多，但实际上，getInteger 方法是个坑。
+    
+    </summary>
+    
+    
+      <category term="Android" scheme="http://wliu6v.github.io/tags/Android/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>NestedScrollView</title>
+    <link href="http://wliu6v.github.io/2015/NestedScrollView/"/>
+    <id>http://wliu6v.github.io/2015/NestedScrollView/</id>
+    <published>2015-04-06T04:00:45.000Z</published>
+    <updated>2016-05-28T01:58:32.631Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="场景描述"><a href="#场景描述" class="headerlink" title="场景描述"></a>场景描述</h2><p>参照 <a href="http://wliu6v.github.io/2014/ListView-in-ScrollView">之前的内容 : ListView in ScrollView</a></p>
+<a id="more"></a>
+<p><img src="/img/scroll_1.png" alt="Nested Scroll 示意图"></p>
+<p>其中，Header 需要伴随下面 Content 的滚动而离开屏幕，但 Tab 滚动到屏幕顶部后会固定在顶部。我们可以通过点击 Tab 切换不同的 ListView（或 GridView）。</p>
+<h2 id="实现思路"><a href="#实现思路" class="headerlink" title="实现思路"></a>实现思路</h2><p>对于该种场景，首先我们不能将 Header 部分作为 ListView 的 HeaderView。因为若如此做，那么点击 Tab 切换 ListView 时，Header 部分需要随之发生变化，这就给 Header 的管理带来了麻烦。</p>
+<p>然后是之前我使用的思路：用一个 ScrollView 在外面嵌套着 ListView，同时根据内外层的 ListView 与 ScrollView 各自的滚动位置分发 Touch 事件。后来在使用过程中，发现此种方式会引入很多 Bug，比如在横竖屏切换或者进入 Activity 销毁并重建后都有可能导致滚动位置发生异常。因此需要考虑新的方式。</p>
+<p>后来考虑，可以监听 ListView 的滚动事件，并通过代码使 Header 与 Tab 移动相同的距离，直至 Header 从屏幕顶端滑出而 Tab 恰好停在顶端为止。大致分为下列几步：</p>
+<ol>
+<li>将 Header 与 Tab 以 <code>layout_alignTop</code> 的方式叠放在 ListView 上，而不是以 <code>layout_above</code> 的方式。</li>
+<li>为 ListView 添加一个空白的 HeaderView 作为占位符，其高度与 Header 相同。</li>
+<li>在 ListView 添加 OnScrollListener，在其 onScroll 事件中根据当前滚动的位置改变 Header 和 Tab 的位置。（通过 <code>view.setTranslationY(floatY)</code> 方法实现）。</li>
+<li>因为 Tab 需要居顶，因此 Header 滚动到了适当的高度后就不应该再继续滚动，而是停在如下图所示的位置：</li>
+</ol>
+<p><img src="/img/scroll_2.png" alt="Nested Scroll 示意图2"></p>
+<h2 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h2><p>代码分为以下 3 个部分：</p>
+<ol>
+<li>接口 ScrollTabHolder</li>
+<li>外层 Activity 与其布局</li>
+<li>内层 Fragment 与其布局</li>
+</ol>
+<h3 id="接口-ScrollTabHolder"><a href="#接口-ScrollTabHolder" class="headerlink" title="接口 ScrollTabHolder"></a>接口 ScrollTabHolder</h3><pre><code>public interface ScrollTabHolder {
+
+    void adjustScroll(int scrollHeight);
+
+    void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount, int pagePosition);
+}
+</code></pre><h3 id="外层-Activity-布局"><a href="#外层-Activity-布局" class="headerlink" title="外层 Activity 布局"></a>外层 Activity 布局</h3><p>其中， pager 作为 Fragment 的容器，header_layout 包含了上文所述的 Header 与 Tab 这两部分。</p>
+<pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
+&lt;FrameLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;
+    android:layout_width=&quot;match_parent&quot;
+    android:layout_height=&quot;match_parent&quot; &gt;
+
+    &lt;android.support.v4.view.ViewPager
+        android:id=&quot;@+id/pager&quot;
+        android:layout_width=&quot;match_parent&quot;
+        android:layout_height=&quot;match_parent&quot; /&gt;
+
+    &lt;LinearLayout
+        android:id=&quot;@+id/header_layout&quot;
+        android:layout_width=&quot;match_parent&quot;
+        android:layout_height=&quot;wrap_content&quot;
+        android:orientation=&quot;vertical&quot;&gt;
+
+        &lt;View
+            android:id=&quot;@+id/header&quot;
+            android:layout_width=&quot;match_parent&quot;
+            android:layout_height=&quot;250dp&quot;
+            android:background=&quot;#FF8888&quot;/&gt;
+
+        &lt;com.astuetz.PagerSlidingTabStrip
+            android:id=&quot;@+id/tabs&quot;
+            android:layout_width=&quot;match_parent&quot;
+            android:layout_height=&quot;48dip&quot;
+            android:layout_gravity=&quot;bottom&quot;
+            android:background=&quot;@android:color/holo_red_dark&quot; /&gt;
+    &lt;/LinearLayout&gt;
+
+&lt;/FrameLayout&gt;
+</code></pre><h3 id="外层-Activity"><a href="#外层-Activity" class="headerlink" title="外层 Activity"></a>外层 Activity</h3><p>省略了很多内容，只保留了 scroll 相关的内容</p>
+<pre><code>public class MainActivity extends ActionBarActivity implements ScrollTabHolder,
+    ViewPager.OnPageChangeListener {
+
+    private View mHeaderLayout;
+    private View mHeader;
+
+    private int mActionBarHeight;
+    private int mHeaderLayoutHeight;
+    private int mHeaderHeight;
+
+    private int mMinHeaderTranslation;
+    private TypedValue mTypedValue = new TypedValue();
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        setContentView(R.layout.activity_main);
+        mHeaderLayout = findViewById(R.id.header_layout);
+
+        mHeaderLayout.getViewTreeObserver().addOnGlobalLayoutListener(
+                new ViewTreeObserver.OnGlobalLayoutListener() {
+                    @Override
+                    public void onGlobalLayout() {
+                        if (mHeaderLayoutHeight == 0) {
+                            mHeaderLayoutHeight = mHeaderLayout.getHeight();
+                            mHeaderHeight = mHeader.getHeight();
+                            // removeOnGlobalLayoutListener should be removeGlobalOnLayoutListener when SDK_VERSION &lt; SDK_JELLY_BEAN
+                            mHeaderLayout.getViewTreeObserver()
+                                    .removeOnGlobalLayoutListener(this);
+                        }
+                    }
+                });
+
+        mHeader = findViewById(R.id.header);
+        mPagerAdapter = new PagerAdapter(getSupportFragmentManager());
+        mPagerAdapter.setTabHolderScrollingContent(this);
+        mViewPager.setAdapter(mPagerAdapter);
+        mPagerSlidingTabStrip.setViewPager(mViewPager);
+        mPagerSlidingTabStrip.setOnPageChangeListener(this);
+    }
+
+    @Override
+    public void onPageSelected(int position) {
+        SparseArrayCompat&lt;ScrollTabHolder&gt; scrollTabHolders = mPagerAdapter
+                .getScrollTabHolders();
+        ScrollTabHolder currentHolder = scrollTabHolders.valueAt(position);
+
+        currentHolder.adjustScroll((int) (mHeaderLayout.getHeight() + ViewHelper
+                .getTranslationY(mHeaderLayout)));
+    }
+
+    @Override
+    public void onScroll(AbsListView view, int firstVisibleItem,
+            int visibleItemCount, int totalItemCount, int pagePosition) {
+
+        mHeaderHeight = mHeader.getHeight();
+        mMinHeaderTranslation = getActionBarHeight() - mHeaderHeight;
+        int scrollY = getScrollY(view);
+
+        mHeaderLayout.setTranslationY(Math.max(-scrollY, mMinHeaderTranslation)); // SDK &lt; HONEYCOMB should use NineOldAnimation 
+    }
+
+    @Override
+    public void adjustScroll(int scrollHeight) {
+        // nothing
+    }
+
+    public int getScrollY(AbsListView view) {
+        View c = view.getChildAt(0);
+        if (c == null) {
+            return 0;
+        }
+
+        int firstVisiblePosition = view.getFirstVisiblePosition();
+        int top = c.getTop();
+
+        int headerHeight = 0;
+        if (firstVisiblePosition &gt;= 1) {
+            headerHeight = mHeaderLayoutHeight;
+        }
+
+        return -top + firstVisiblePosition * c.getHeight() + headerHeight;
+    }
+
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    public int getActionBarHeight() {
+        if (mActionBarHeight != 0) {
+            return mActionBarHeight;
+        }
+
+        if (Build.VERSION.SDK_INT &gt; Build.VERSION_CODES.HONEYCOMB) {
+            getTheme().resolveAttribute(android.R.attr.actionBarSize,
+                    mTypedValue, true);
+        } else {
+            getTheme()
+                    .resolveAttribute(R.attr.actionBarSize, mTypedValue, true);
+        }
+
+        mActionBarHeight = TypedValue.complexToDimensionPixelSize(
+                mTypedValue.data, getResources().getDisplayMetrics());
+
+        return mActionBarHeight;
+    }
+
+    public class PagerAdapter extends FragmentPagerAdapter {
+
+        private SparseArrayCompat&lt;ScrollTabHolder&gt; mScrollTabHolders;
+        private ScrollTabHolder mListener;
+
+        public PagerAdapter(FragmentManager fm) {
+            super(fm);
+            mScrollTabHolders = new SparseArrayCompat&lt;ScrollTabHolder&gt;();
+        }
+
+        public void setTabHolderScrollingContent(ScrollTabHolder listener) {
+            mListener = listener;
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            ScrollTabHolderFragment fragment = (ScrollTabHolderFragment) SampleListFragment
+                    .newInstance(position);
+            mScrollTabHolders.put(position, fragment);
+            if (mListener != null) {
+                fragment.setScrollTabHolder(mListener);
+            }
+
+            return fragment;
+        }
+
+        public SparseArrayCompat&lt;ScrollTabHolder&gt; getScrollTabHolders() {
+            return mScrollTabHolders;
+        }
+    }
+}
+</code></pre><h3 id="内层-Fragment"><a href="#内层-Fragment" class="headerlink" title="内层 Fragment"></a>内层 Fragment</h3><p>内层 Fragment 仅包含一个 ListView</p>
+<pre><code>public class SampleListFragment extends ScrollTabHolderFragment implements OnScrollListener {
+    private ListView mListView;
+
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        mListView.setOnScrollListener(this);
+
+        View placeHolderView = getActivity().getLayoutInflater().inflate(R.layout.view_header_placeholder, mListView, false);
+        if (mListView.getHeaderViewsCount() &gt; 0) {
+            mListView.removeHeaderView(placeHolderView);
+        }
+        mListView.addHeaderView(placeHolderView);
+    }
+
+    @Override
+    public void adjustScroll(int scrollHeight) {
+        if (scrollHeight == 0 &amp;&amp; mListView.getFirstVisiblePosition() &gt;= 1) {
+            return;
+        }
+
+        mListView.setSelectionFromTop(1, scrollHeight);
+    }
+
+    @Override
+    public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+        if (mScrollTabHolder != null)
+            mScrollTabHolder.onScroll(view, firstVisibleItem, visibleItemCount, totalItemCount, mPosition);
+    }
+}
+</code></pre><h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><ol>
+<li>若 Tab 不需要置顶而是需要随 Header 一起滚动离开屏幕，则需要修改外层 Activity 中 onScroll 方法中的 mMinHeaderTranslation 与 scrollY 值。</li>
+<li>当切换 Tab 时，最好将 ListView 滚动至顶部，同时是 Header 位置复位，从而避免切换 Tab 时带来的部分位置空白的问题。</li>
+<li>如果 Header 部分的高度会动态变化，则应将外层 Activity 中的 onGlobalLayout 相关内容进行修改，去除 removeOnGlobalLayout 的相关代码，同时对 HeaderLayoutHeight 的高度进行判断，如果高度发生了变化就进入 if 代码段。</li>
+<li>需要注意添加了 HeaderView 之后会导致 ListView 的 position 发生变化，ListView 的 onItemClick 方法会受到影响。应采用 <code>parent.getAdapter().getItem(postion)</code> 或其他方式进行处理。</li>
+</ol>
+<h2 id="参考自"><a href="#参考自" class="headerlink" title="参考自"></a>参考自</h2><p><a href="https://github.com/kmshack/Android-ParallaxHeaderViewPager" target="_blank" rel="external">Android-ParallaxHeaderViewPager</a></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;场景描述&quot;&gt;&lt;a href=&quot;#场景描述&quot; class=&quot;headerlink&quot; title=&quot;场景描述&quot;&gt;&lt;/a&gt;场景描述&lt;/h2&gt;&lt;p&gt;参照 &lt;a href=&quot;http://wliu6v.github.io/2014/ListView-in-ScrollView&quot;&gt;之前的内容 : ListView in ScrollView&lt;/a&gt;&lt;/p&gt;
+    
+    </summary>
+    
+    
+      <category term="Android" scheme="http://wliu6v.github.io/tags/Android/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>bookmarks</title>
+    <link href="http://wliu6v.github.io/2014/bookmarks/"/>
+    <id>http://wliu6v.github.io/2014/bookmarks/</id>
+    <published>2014-12-20T06:53:27.000Z</published>
+    <updated>2015-06-08T11:32:45.971Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="优质控件"><a href="#优质控件" class="headerlink" title="优质控件"></a>优质控件</h2><h3 id="代码家"><a href="#代码家" class="headerlink" title="代码家"></a><a href="http://blog.daimajia.com/" target="_blank" rel="external">代码家</a></h3><p>编写了许多动画不错的 view 控件。比如 <a href="http://blog.daimajia.com/2014/09/this-is-productivity/" target="_blank" rel="external">AndroidSwipeLayout</a> 、 <a href="http://blog.daimajia.com/2014/08/android-view-hover/" target="_blank" rel="external">AndroidViewHover</a> 等</p>
+<h2 id="工具包"><a href="#工具包" class="headerlink" title="工具包"></a>工具包</h2><p><a href="http://apistore.baidu.com/astore/classificationservicelist/33.html" target="_blank" rel="external">API Store</a> 将各种公开的 API 汇总起来的一个网站。包括二维码 API 或者一些地图、推送、三方登录之类的 API</p>
+<p><a href="http://www.maiziedu.com/course/2/" target="_blank" rel="external">麦子学院</a></p>
+<p><a href="http://stormzhang.gitcafe.com/android/2014/07/07/learn-android-from-rookie/" target="_blank" rel="external">Android学习之路</a></p>
+<h2 id="Code-Style"><a href="#Code-Style" class="headerlink" title="Code Style"></a>Code Style</h2><p><a href="http://blog.jobbole.com/77051/" target="_blank" rel="external">对代码命名的一点思考和理解</a></p>
+<h2 id="ListView"><a href="#ListView" class="headerlink" title="ListView"></a>ListView</h2><p><a href="http://geecity.se/2013/06/dragsortlistview-with-sections/#" target="_blank" rel="external">DragSortListView with Sections</a></p>
+<h2 id="Others"><a href="#Others" class="headerlink" title="Others"></a>Others</h2><p><a href="http://ingramchen.io/blog/2014/09/prevention-of-android-dex-64k-method-size-limit.html" target="_blank" rel="external">預防 Android Dex 64k Method Size Limit</a></p>
+<p><a href="http://blog.csdn.net/ashqal/article/details/21869151" target="_blank" rel="external">【android ndk】macos环境下Android Studio中利用gradle编译jni模块及配置 </a></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;优质控件&quot;&gt;&lt;a href=&quot;#优质控件&quot; class=&quot;headerlink&quot; title=&quot;优质控件&quot;&gt;&lt;/a&gt;优质控件&lt;/h2&gt;&lt;h3 id=&quot;代码家&quot;&gt;&lt;a href=&quot;#代码家&quot; class=&quot;headerlink&quot; title=&quot;代码家&quot;&gt;&lt;/a&gt;&lt;a
+    
+    </summary>
+    
+    
+      <category term="Android" scheme="http://wliu6v.github.io/tags/Android/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Hexo guide</title>
+    <link href="http://wliu6v.github.io/2014/Hexo-guide/"/>
+    <id>http://wliu6v.github.io/2014/Hexo-guide/</id>
+    <published>2014-11-17T12:13:41.000Z</published>
+    <updated>2014-11-29T07:13:01.259Z</updated>
+    
+    <content type="html"><![CDATA[<p>参考以下系列文章</p>
+<p><a href="http://zipperary.com/2013/05/28/hexo-guide-1/" target="_blank" rel="external">http://zipperary.com/2013/05/28/hexo-guide-1/</a></p>
+<p><a href="http://zipperary.com/categories/hexo/" target="_blank" rel="external">http://zipperary.com/categories/hexo/</a></p>
+<p><a href="http://wsgzao.github.io/post/hexo-scroll-to-top/" target="_blank" rel="external">添加 “回到顶部” 按钮</a></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;参考以下系列文章&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;http://zipperary.com/2013/05/28/hexo-guide-1/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://zipperary.com/2013/05/28/he
+    
+    </summary>
+    
+    
+      <category term="Hexo" scheme="http://wliu6v.github.io/tags/Hexo/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>ListView in ScrollView</title>
+    <link href="http://wliu6v.github.io/2014/ListView-in-ScrollView/"/>
+    <id>http://wliu6v.github.io/2014/ListView-in-ScrollView/</id>
+    <published>2014-10-11T15:31:37.000Z</published>
+    <updated>2016-05-28T01:59:02.950Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="本篇内容已过时"><a href="#本篇内容已过时" class="headerlink" title="本篇内容已过时"></a>本篇内容已过时</h2><p>Update 2015.04.06</p>
+<p>发现了新的方式，实现的效果更好，代码更简练而且 bug 更少。请查阅 <a href="http://wliu6v.github.io/2015/NestedScrollView/">NestedScrollView</a></p>
+<h2 id="场景描述"><a href="#场景描述" class="headerlink" title="场景描述"></a>场景描述</h2><p>对于 Scroll 嵌套 Scroll 这种情况来说，最理想的情况是避免进行这种布局设计。但有时候并非太容易做。比如下图：</p>
+<p><img src="/img/scroll_1.png" alt="Nested Scroll 示意图"></p>
+<p>其中，Header 需要能够随着 ListView 的滚动离开屏幕，但 Tab 会留在界面上面。而且通过点击 Tab，需要可以在不同界面中进行切换。</p>
+<p>如果不需要可以切换的 Tab 效果，那么我们可以将 Header 与 Tab 都作为 ListView 的 HeaderView 来实现。但是如果要能够实现 Tab 切换的话，显然我们不能将 Header 对于每个 Tab 中的 ListView 都作为 HeaderView。因此只能将 Tab 与下面的 ListView 视作是同级的控件，然后在外面嵌套一层 ScrollView。</p>
+<a id="more"></a>
+<h2 id="实现思路"><a href="#实现思路" class="headerlink" title="实现思路"></a>实现思路</h2><h3 id="1-展开内层的-ListView"><a href="#1-展开内层的-ListView" class="headerlink" title="1. 展开内层的 ListView"></a>1. 展开内层的 ListView</h3><p>关于这个问题，网上有一种现成的解决方案：计算整个内层 ListView 的高度，将其全部展开，然后就可以将其作为一个 LinearLayout 放在 ScrollView 中了。</p>
+<p>这种做法的优点是处理起来非常简单，不需要考虑 Touch 事件。但有下列缺点：</p>
+<ol>
+<li>展开整个 ListView 并计算其高度这个操作需要对每个元素执行一次 getView 操作，比较耗时。如果只计算一个元素的高度并乘以元素数目，则在每个元素不等高时可能出现问题。</li>
+<li>展开整个 ListView 将导致 ListView 原有的重用机制无法正常起作用，当需要加载大量资源时，可能导致性能问题。</li>
+<li>对于通常的 loadMore，我们可以监测 onScroll 事件，判断其是否滚动到了最后一个元素。如果将 ListView 全部展开，则即使最底部元素没有显示在屏幕中，也会执行 loadMore。</li>
+<li>无法与 DragSoftListView 同时使用。</li>
+</ol>
+<h3 id="2-根据内层与外层的滚动位置分发-touch-事件"><a href="#2-根据内层与外层的滚动位置分发-touch-事件" class="headerlink" title="2. 根据内层与外层的滚动位置分发 touch 事件"></a>2. 根据内层与外层的滚动位置分发 touch 事件</h3><p>我们可以在滚动的时候令其先滚动外层的 ScrollView，滚到底的时候再滚动 ListView。</p>
+<p>具体思路，首先根据上右图，我们需要将 ListView 设置为整个屏幕的高度，并放置在外层的 ScrollView 中。也就是说， ScrollView 的全部高度为：TopView 的高度 + Tab 的高度 + 整个屏幕的高度（即下面的 ListView）。</p>
+<p>当屏幕由初始状态向下滚动时，我们需要监测外层 ScrollView 滚动的位置，并与 TopView 的高度作比较。如果 TopView 还在视野内，则滚动事件由外层 ScrollView 来处理。如果 TopView 完全消失，则将滚动事件由内层的 ListView 来处理。</p>
+<p>如果是向上滚动，则首先需要判断 ListView 是否已经被滚动到了顶端。如果否，则将滚动事件给 ListView 处理。如果 ListView 的第一个元素已经到顶，则将滚动事件交给外层的 ScrollView 处理。</p>
+<p>部分代码如下：</p>
+<p>外层：</p>
+<pre><code>mRootScrollView.getViewTreeObserver().addOnScrollChangedListener(
+                new ViewTreeObserver.OnScrollChangedListener() {
+                    @Override
+                    public void onScrollChanged() {
+                        if (mTabTopPosition == 0 || mTabHeight == 0) {
+                            setTabPositionValue();
+                        }
+                        if (mRootScrollView.getScrollY() &gt;= (mTabTopPosition - 5)) {
+                            mTopTabView.setVisibility(View.VISIBLE);
+                            for (InnerFragment innerFragment : mFragmentList) {
+                                innerFragment.setOutCanDown(false);
+                            }
+                        } else if (mRootScrollView.getScrollY() &lt;= mTabTopPosition
+                                + mTabHeight) {
+                            mTopTabView.setVisibility(View.INVISIBLE);
+                            for (InnerFragment innerFragment : mFragmentList) {
+                                innerFragment.setOutCanDown(true);
+                            }
+                        }
+                    }
+                });
+
+/**
+ * Help for controling the Top Tab&apos;s visibility when scrolling
+ */
+private void setTabPositionValue() {
+    mTabHeight = mTabView.getHeight();
+    mTabTopPosition = mTabView.getTop();
+    mScrollViewTop = mRootScrollView.getTop();
+
+    Handler handler = new Handler();
+    handler.postDelayed(new Runnable() {
+        @Override
+        public void run() {
+            int height = mFragmentContainer.getHeight();
+            LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) mFragmentContainer
+                    .getLayoutParams();
+            params.height += mHeaderLayout.getHeight();
+            params.height += height;
+            mFragmentContainer.setLayoutParams(params);
+        }
+    }, 100);
+}
+</code></pre><p>内层：</p>
+<pre><code>private View.OnTouchListener mTouchListener = new View.OnTouchListener() {
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+            int action = event.getAction();
+            switch (action) {
+            case MotionEvent.ACTION_DOWN: {
+                mTouchBeginY = event.getY();
+                v.getParent().requestDisallowInterceptTouchEvent(
+                        !mOutCanDown || mInCanUp);
+                break;
+            }
+            case MotionEvent.ACTION_UP: {
+                v.getParent().requestDisallowInterceptTouchEvent(false);
+                break;
+            }
+
+            case MotionEvent.ACTION_MOVE:
+                if (event.getY() &gt; mTouchBeginY + 4) {
+                    v.getParent().requestDisallowInterceptTouchEvent(mInCanUp);
+                } else if (event.getY() &lt; mTouchBeginY - 4) {
+                    v.getParent().requestDisallowInterceptTouchEvent(
+                            !mOutCanDown);
+                }
+                break;
+            }
+            v.onTouchEvent(event);
+            return true;
+        }
+    };
+
+mGalleryView.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView view, int scrollState) {
+            }
+
+            @Override
+            public void onScroll(AbsListView view, int firstVisibleItem,
+                    int visibleItemCount, int totalItemCount) {
+
+                if (firstVisibleItem == 0) {
+                    View v = mGalleryView.getChildAt(0);
+                    if (v != null) {
+                        setInnerCanUp(v.getBottom() &lt; (v.getHeight() - 8));
+                    }
+
+                } else {
+                    setInnerCanUp(true);
+                }
+            }
+        });
+</code></pre><h3 id="需要注意的地方"><a href="#需要注意的地方" class="headerlink" title="需要注意的地方"></a>需要注意的地方</h3><p>对于 setTabPositionValue 方法，每次屏幕高度发生变化时（也就是横竖屏切换时）都需要重新调用一遍。</p>
+<p>但是，怎么处理，我还没想好。</p>
+<h3 id="一些其他问题"><a href="#一些其他问题" class="headerlink" title="一些其他问题"></a>一些其他问题</h3><p>如果因为分发 Touch 事件而导致多点触控导致 crash 的话，可以考虑禁用多点触控。参照 <a href="http://blog.csdn.net/yy958836746/article/details/21536969" target="_blank" rel="external">http://blog.csdn.net/yy958836746/article/details/21536969</a>。在 layout 中禁用掉多点触控并不能解决该问题。</p>
+<p>如果有 Sliding Menu，则可以在内层的 TouchListener 的 ACTION_MOVE 中判断横向的移动，代码如下：</p>
+<pre><code>if (mHasSlidingMenu &amp;&amp; event.getX() &lt; mTouchBeginX - 28) {
+    v.getParent().requestDisallowInterceptTouchEvent(false);
+    break;
+}
+</code></pre><hr>
+<h3 id="新问题"><a href="#新问题" class="headerlink" title="新问题"></a>新问题</h3><p>当内层的 ListView 的元素上有子 View 的 onClick 事件时，处理起来会有问题。需要对点击事件进行额外的判断。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;本篇内容已过时&quot;&gt;&lt;a href=&quot;#本篇内容已过时&quot; class=&quot;headerlink&quot; title=&quot;本篇内容已过时&quot;&gt;&lt;/a&gt;本篇内容已过时&lt;/h2&gt;&lt;p&gt;Update 2015.04.06&lt;/p&gt;
+&lt;p&gt;发现了新的方式，实现的效果更好，代码更简练而且 bug 更少。请查阅 &lt;a href=&quot;http://wliu6v.github.io/2015/NestedScrollView/&quot;&gt;NestedScrollView&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id=&quot;场景描述&quot;&gt;&lt;a href=&quot;#场景描述&quot; class=&quot;headerlink&quot; title=&quot;场景描述&quot;&gt;&lt;/a&gt;场景描述&lt;/h2&gt;&lt;p&gt;对于 Scroll 嵌套 Scroll 这种情况来说，最理想的情况是避免进行这种布局设计。但有时候并非太容易做。比如下图：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;/img/scroll_1.png&quot; alt=&quot;Nested Scroll 示意图&quot;&gt;&lt;/p&gt;
+&lt;p&gt;其中，Header 需要能够随着 ListView 的滚动离开屏幕，但 Tab 会留在界面上面。而且通过点击 Tab，需要可以在不同界面中进行切换。&lt;/p&gt;
+&lt;p&gt;如果不需要可以切换的 Tab 效果，那么我们可以将 Header 与 Tab 都作为 ListView 的 HeaderView 来实现。但是如果要能够实现 Tab 切换的话，显然我们不能将 Header 对于每个 Tab 中的 ListView 都作为 HeaderView。因此只能将 Tab 与下面的 ListView 视作是同级的控件，然后在外面嵌套一层 ScrollView。&lt;/p&gt;
+    
+    </summary>
+    
+    
+      <category term="Android" scheme="http://wliu6v.github.io/tags/Android/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Eclipse to AndroidStudio</title>
+    <link href="http://wliu6v.github.io/2014/Eclipse-to-AndroidStudio/"/>
+    <id>http://wliu6v.github.io/2014/Eclipse-to-AndroidStudio/</id>
+    <published>2014-09-11T16:11:56.000Z</published>
+    <updated>2016-05-28T01:59:15.237Z</updated>
+    
+    <content type="html"><![CDATA[<h3 id="1-从-Eclipse-中-Export-项目"><a href="#1-从-Eclipse-中-Export-项目" class="headerlink" title="1. 从 Eclipse 中 Export 项目"></a>1. 从 Eclipse 中 Export 项目</h3><p>在需要点击的项目上点击右键，选择 Export，选择 Android - Generater Gradle build files，然后 Next。</p>
+<p>如果无此选项，说明 ADT 版本过低，需要去 <a href="http://developer.android.com/sdk/index.html" target="_blank" rel="external">Google Developer</a> 下载较新的版本。</p>
+<a id="more"></a>
+<p><img src="/img/Eclipse2AndroidStudio_1.png" alt=""></p>
+<h3 id="2-勾选需要生成-Gradle-的项目"><a href="#2-勾选需要生成-Gradle-的项目" class="headerlink" title="2. 勾选需要生成 Gradle 的项目"></a>2. 勾选需要生成 Gradle 的项目</h3><p>这里选择有哪些项目需要生成 Gradle。此处应将项目所依赖的其他项目一并勾选。之后一路 Next。成功之后会提示生成的 build.gradle 的位置。</p>
+<p><img src="/img/Eclipse2AndroidStudio_2.png" alt=""></p>
+<h3 id="3-用-Android-Studio-打开-build-gradle"><a href="#3-用-Android-Studio-打开-build-gradle" class="headerlink" title="3. 用 Android Studio 打开 build.gradle"></a>3. 用 Android Studio 打开 build.gradle</h3><p>此处需要注意的是，用 Android Studio 打开的不能使整个工程，而是在上一步中所生成的 build.gradle 的位置。</p>
+<p>如下图，此时我们选择的不应该是 demo 或者 library，而是 build.gradle 文件。在 demo 目录与 library 目录下可能也会有 build.gradle 文件，但我们只需要包含外层的这个即可。</p>
+<p>在执行此操作时可能会提示选择 Gradle，按照默认选择即可 (Use default gradle wrapper)，之后可能要下载 Gradle，通常需要下载很久（5~30分钟）</p>
+<p><img src="/img/Eclipse2AndroidStudio_3.png" alt=""></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h3 id=&quot;1-从-Eclipse-中-Export-项目&quot;&gt;&lt;a href=&quot;#1-从-Eclipse-中-Export-项目&quot; class=&quot;headerlink&quot; title=&quot;1. 从 Eclipse 中 Export 项目&quot;&gt;&lt;/a&gt;1. 从 Eclipse 中 Export 项目&lt;/h3&gt;&lt;p&gt;在需要点击的项目上点击右键，选择 Export，选择 Android - Generater Gradle build files，然后 Next。&lt;/p&gt;
+&lt;p&gt;如果无此选项，说明 ADT 版本过低，需要去 &lt;a href=&quot;http://developer.android.com/sdk/index.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Google Developer&lt;/a&gt; 下载较新的版本。&lt;/p&gt;
+    
+    </summary>
+    
+    
+      <category term="Android" scheme="http://wliu6v.github.io/tags/Android/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>EditText 在进行物理键盘输入时失去焦点问题</title>
+    <link href="http://wliu6v.github.io/2014/EditText-%E5%9C%A8%E7%89%A9%E7%90%86%E9%94%AE%E7%9B%98%E8%BE%93%E5%85%A5%E6%97%B6%E5%A4%B1%E5%8E%BB%E7%84%A6%E7%82%B9%E9%97%AE%E9%A2%98/"/>
+    <id>http://wliu6v.github.io/2014/EditText-在物理键盘输入时失去焦点问题/</id>
+    <published>2014-08-20T06:15:10.000Z</published>
+    <updated>2016-05-28T01:59:09.449Z</updated>
+    
+    <content type="html"><![CDATA[<p>当同屏存在自定义的 TabBar 的时候，偶尔会出现这样一个问题：当光标在 EditText 中，敲击物理键盘的任意键，EditText 会失去焦点。此时按方向键，发现 TabBar 发生了左右移动，说明焦点被其获取。</p>
+<p>要解决此问题，只需添加如下语句：</p>
+<pre><code>mTabHost.addOnAttachStateChangeListener(new OnAttachStateChangeListener() {
+
+        @Override
+        public void onViewDetachedFromWindow(View v) {}
+
+        @Override
+        public void onViewAttachedToWindow(View v) {
+            mTabHost.getViewTreeObserver().removeOnTouchModeChangeListener(mTabHost);
+        }
+    });
+</code></pre><p>问题来源： <a href="https://groups.google.com/forum/#!topic/android-developers/8_3R6xcoiIY" target="_blank" rel="external">https://groups.google.com/forum/#!topic/android-developers/8_3R6xcoiIY</a><br>解决方法来源：<a href="https://code.google.com/p/android/issues/detail?id=2516" target="_blank" rel="external">https://code.google.com/p/android/issues/detail?id=2516</a> 中的第16楼。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;当同屏存在自定义的 TabBar 的时候，偶尔会出现这样一个问题：当光标在 EditText 中，敲击物理键盘的任意键，EditText 会失去焦点。此时按方向键，发现 TabBar 发生了左右移动，说明焦点被其获取。&lt;/p&gt;
+&lt;p&gt;要解决此问题，只需添加如下语句：&lt;/p&gt;
+    
+    </summary>
+    
+    
+      <category term="Android" scheme="http://wliu6v.github.io/tags/Android/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Tips</title>
+    <link href="http://wliu6v.github.io/2014/Memo/"/>
+    <id>http://wliu6v.github.io/2014/Memo/</id>
+    <published>2014-08-16T12:34:43.000Z</published>
+    <updated>2016-05-28T01:58:58.398Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="Windows7-与-Ubuntu-双系统安装"><a href="#Windows7-与-Ubuntu-双系统安装" class="headerlink" title="Windows7 与 Ubuntu 双系统安装"></a>Windows7 与 Ubuntu 双系统安装</h1><p><a href="http://bbs.pcbeta.com/viewthread-1046663-1-1.html" target="_blank" rel="external">http://bbs.pcbeta.com/viewthread-1046663-1-1.html</a><br><a href="http://blog.csdn.net/lvanneo/article/details/16885121" target="_blank" rel="external">http://blog.csdn.net/lvanneo/article/details/16885121</a></p>
+<h1 id="在-Ubuntu-上安装搜狗输入法"><a href="#在-Ubuntu-上安装搜狗输入法" class="headerlink" title="在 Ubuntu 上安装搜狗输入法"></a>在 Ubuntu 上安装搜狗输入法</h1><p>首先尝试官网的安装，如果不行的话，需要切换输入法设置。方法是输入 im-config，然后选择 ok - yes - fcitx 。然后重启。</p>
+<p><a href="http://www.2cto.com/os/201405/305463.html" target="_blank" rel="external">http://www.2cto.com/os/201405/305463.html</a></p>
+<h1 id="aapt-exception"><a href="#aapt-exception" class="headerlink" title="aapt exception"></a>aapt exception</h1><p><a href="http://askubuntu.com/questions/147400/problems-with-eclipse-and-android-sdk" target="_blank" rel="external">http://askubuntu.com/questions/147400/problems-with-eclipse-and-android-sdk</a></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;h1 id=&quot;Windows7-与-Ubuntu-双系统安装&quot;&gt;&lt;a href=&quot;#Windows7-与-Ubuntu-双系统安装&quot; class=&quot;headerlink&quot; title=&quot;Windows7 与 Ubuntu 双系统安装&quot;&gt;&lt;/a&gt;Windows7 与 Ubuntu
+    
+    </summary>
+    
+    
+      <category term="Tips" scheme="http://wliu6v.github.io/tags/Tips/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>onmeasure crashed</title>
+    <link href="http://wliu6v.github.io/2014/onmeasure-crashed/"/>
+    <id>http://wliu6v.github.io/2014/onmeasure-crashed/</id>
+    <published>2014-08-11T16:30:24.000Z</published>
+    <updated>2014-08-11T08:33:46.501Z</updated>
+    
+    <content type="html"><![CDATA[<p>RelativeLayout 在 Android 4.1.1 及其之前版本执行 measure 有时会 crash。</p>
+<p>可尝试在 inflate 的时候指定其 parentView 参数。</p>
+<p>详见 <a href="http://blog.csdn.net/wangfei584521/article/details/25987377" target="_blank" rel="external">http://blog.csdn.net/wangfei584521/article/details/25987377</a> 中的 solution 1</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;RelativeLayout 在 Android 4.1.1 及其之前版本执行 measure 有时会 crash。&lt;/p&gt;
+&lt;p&gt;可尝试在 inflate 的时候指定其 parentView 参数。&lt;/p&gt;
+&lt;p&gt;详见 &lt;a href=&quot;http://blog.csdn.
+    
+    </summary>
+    
+    
+      <category term="Android" scheme="http://wliu6v.github.io/tags/Android/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Android Tips</title>
+    <link href="http://wliu6v.github.io/2014/Memo-Android/"/>
+    <id>http://wliu6v.github.io/2014/Memo-Android/</id>
+    <published>2014-08-06T07:14:12.000Z</published>
+    <updated>2016-05-28T02:00:28.411Z</updated>
+    
+    <content type="html"><![CDATA[<p>这篇文章会集合 Android 开发过程中遇到的奇怪的各种坑与小技巧。持续更新。</p>
+<a id="more"></a>
+<h2 id="GridView-中使用正方形布局"><a href="#GridView-中使用正方形布局" class="headerlink" title="GridView 中使用正方形布局"></a>GridView 中使用正方形布局</h2><p><a href="http://blog.chengyunfeng.com/?p=465" target="_blank" rel="external">http://blog.chengyunfeng.com/?p=465</a><br>重写 onMeasure 方法，将其高度设置为宽度。而宽度是可以去动态变化的。</p>
+<h2 id="Enable-Scroll-in-ScrollView"><a href="#Enable-Scroll-in-ScrollView" class="headerlink" title="Enable Scroll in ScrollView"></a>Enable Scroll in ScrollView</h2><p>比如 EditText，经常会需要在 ScrollView 或者 ListView 中实现滚动效果，需要添加如下代码。</p>
+<pre><code>EditText EtOne = (EditText) findViewById(R.id.comment1);
+EtOne.setOnTouchListener(new OnTouchListener() {
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+            if (v.getId() == R.id.comment1) {
+                v.getParent().requestDisallowInterceptTouchEvent(true);
+                switch (event.getAction() &amp; MotionEvent.ACTION_MASK) {
+                case MotionEvent.ACTION_UP:
+                    v.getParent().requestDisallowInterceptTouchEvent(false);
+                    break;
+                }
+            }
+            return false;
+        }
+    });
+</code></pre><h2 id="Android-中文字符串排序"><a href="#Android-中文字符串排序" class="headerlink" title="Android 中文字符串排序"></a>Android 中文字符串排序</h2><p><a href="http://blog.csdn.net/luoboo525/article/details/8594561" target="_blank" rel="external">http://blog.csdn.net/luoboo525/article/details/8594561</a></p>
+<p><a href="http://blog.csdn.net/p106786860/article/details/9811929" target="_blank" rel="external">http://blog.csdn.net/p106786860/article/details/9811929</a></p>
+<h2 id="远程连接-ADB"><a href="#远程连接-ADB" class="headerlink" title="远程连接 ADB"></a>远程连接 ADB</h2><ol>
+<li>用 USB 连接手机，开启调试模式</li>
+<li>adb tcpip 5555</li>
+<li>拔掉数据线。</li>
+<li>adb connect 192.168.1.3:5555</li>
+</ol>
+<p>其中端口号任选，IP地址为手机所在的IP地址。</p>
+<p><a href="http://j796160836.pixnet.net/blog/post/29108155-%5Bandroid%5D-debug%E4%B8%8D%E7%94%A8%E7%B7%9A%EF%BC%8C%E7%94%A8adb%E9%80%A3%E6%8E%A53g-wifi%E6%89%8B%E6%A9%9F" target="_blank" rel="external">原文</a></p>
+<p><a href="http://developer.android.com/guide/topics/connectivity/usb/index.html" target="_blank" rel="external">官方文档</a></p>
+<h2 id="Github-Rebase"><a href="#Github-Rebase" class="headerlink" title="Github Rebase"></a>Github Rebase</h2><p>B分支对A分支用过Rebase之后，如果以后还想对A分支Rebase，就不能对C分支再Rebase了。</p>
+<h2 id="Android-Studio-导入第三方依赖包"><a href="#Android-Studio-导入第三方依赖包" class="headerlink" title="Android Studio 导入第三方依赖包"></a>Android Studio 导入第三方依赖包</h2><p><a href="http://www.cnblogs.com/neozhu/p/3458759.html" target="_blank" rel="external">http://www.cnblogs.com/neozhu/p/3458759.html</a></p>
+<h2 id="依赖注入"><a href="#依赖注入" class="headerlink" title="依赖注入"></a>依赖注入</h2><p>Roboguice / 依赖注入 / @InjectView / …</p>
+<p><a href="http://www.cnblogs.com/keyindex/p/3366666.html" target="_blank" rel="external">http://www.cnblogs.com/keyindex/p/3366666.html</a>    </p>
+<h2 id="ListView"><a href="#ListView" class="headerlink" title="ListView"></a>ListView</h2><h3 id="getChildAt-index"><a href="#getChildAt-index" class="headerlink" title="getChildAt(index)"></a>getChildAt(index)</h3><p>在 <code>getChildAt(index)</code> 方法中，index 是当前可视范围中的位置。<br>通常使用 <code>position - getFirstVisiblePosition()</code> 作为 index 参数。</p>
+<h3 id="HeaderView-position"><a href="#HeaderView-position" class="headerlink" title="HeaderView position"></a>HeaderView position</h3><p><a href="http://blog.chengbo.net/2012/03/09/onitemclick-return-wrong-position-when-listview-has-headerview.html" target="_blank" rel="external">当 ListView 有 Header 时， onItemClick 里的 position 不正确</a></p>
+<p>应以如下方式调用：</p>
+<pre><code>@Override
+public void onItemClick(AdapterView&lt;?&gt; parent, View v, int position, long id) {
+    doSomething(parent.getAdapter().getItem(position));
+}
+</code></pre><h2 id="通过-return-在测试过程中避免执行后续的语句"><a href="#通过-return-在测试过程中避免执行后续的语句" class="headerlink" title="通过 return 在测试过程中避免执行后续的语句"></a>通过 return 在测试过程中避免执行后续的语句</h2><p>如果在一个方法中，需要避免后续语句的执行，直接在前面加 return 是不行的，因为这样会报错。但用 <code>if (true) return;</code> 就可以了。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;这篇文章会集合 Android 开发过程中遇到的奇怪的各种坑与小技巧。持续更新。&lt;/p&gt;
+    
+    </summary>
+    
+    
+      <category term="Android" scheme="http://wliu6v.github.io/tags/Android/"/>
+    
+      <category term="Tips" scheme="http://wliu6v.github.io/tags/Tips/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>Android 9-patch image</title>
+    <link href="http://wliu6v.github.io/2014/Android-9-patch-image/"/>
+    <id>http://wliu6v.github.io/2014/Android-9-patch-image/</id>
+    <published>2014-08-04T10:51:46.000Z</published>
+    <updated>2016-05-28T01:59:23.646Z</updated>
+    
+    <content type="html"><![CDATA[<ol>
+<li>如果源文件的后缀名是 <code>.png</code> (或其他），那么 Draw-9-patch 工具会将图片四周各加宽一像素（源文件如果是 <code>88*70</code>，那么生成的文件就是<code>90*72</code>的）。且生成的文件会将后缀名改为 <code>.9.png</code>。</li>
+<li>如果源文件后缀名是 <code>.9.png</code>，那么 Draw-9-patch 工具不会将图片加宽，而且貌似会自动识别之前绘制的边界。因此，如果原图是没有边界的，就不能以 <code>.9.png</code> 结尾。设计师交付图片之前应注意一下。</li>
+<li>Draw-9-patch 工具在保存图片的时候会自动将图片进行压缩。</li>
+<li>如果有多张图片要处理，建议每次处理完保存完一张之后都重新打开一次 Draw-9-patch 工具，否则可能会产生一些边界定位的 bug。但这种 bug 只影响编辑过程，不影响最终成品。</li>
+<li>拉伸点是可以不连续的。（没实际用过。。只是目测可以）</li>
+</ol>
+<a id="more"></a>]]></content>
+    
+    <summary type="html">
+    
+      &lt;ol&gt;
+&lt;li&gt;如果源文件的后缀名是 &lt;code&gt;.png&lt;/code&gt; (或其他），那么 Draw-9-patch 工具会将图片四周各加宽一像素（源文件如果是 &lt;code&gt;88*70&lt;/code&gt;，那么生成的文件就是&lt;code&gt;90*72&lt;/code&gt;的）。且生成的文件会将后缀名改为 &lt;code&gt;.9.png&lt;/code&gt;。&lt;/li&gt;
+&lt;li&gt;如果源文件后缀名是 &lt;code&gt;.9.png&lt;/code&gt;，那么 Draw-9-patch 工具不会将图片加宽，而且貌似会自动识别之前绘制的边界。因此，如果原图是没有边界的，就不能以 &lt;code&gt;.9.png&lt;/code&gt; 结尾。设计师交付图片之前应注意一下。&lt;/li&gt;
+&lt;li&gt;Draw-9-patch 工具在保存图片的时候会自动将图片进行压缩。&lt;/li&gt;
+&lt;li&gt;如果有多张图片要处理，建议每次处理完保存完一张之后都重新打开一次 Draw-9-patch 工具，否则可能会产生一些边界定位的 bug。但这种 bug 只影响编辑过程，不影响最终成品。&lt;/li&gt;
+&lt;li&gt;拉伸点是可以不连续的。（没实际用过。。只是目测可以）&lt;/li&gt;
+&lt;/ol&gt;
+    
+    </summary>
+    
+    
+      <category term="Android" scheme="http://wliu6v.github.io/tags/Android/"/>
+    
+  </entry>
+  
+</feed>
