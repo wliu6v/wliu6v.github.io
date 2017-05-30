@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://wliu6v.github.io/"/>
-  <updated>2017-02-25T07:19:53.804Z</updated>
+  <updated>2017-05-30T09:05:18.426Z</updated>
   <id>http://wliu6v.github.io/</id>
   
   <author>
@@ -14,6 +14,47 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>升级到 AndroidStudio 3.0 Canary 之后新建 Kotlin 项目无法编译的问题</title>
+    <link href="http://wliu6v.github.io/2017/Can-not-sync-gradle-for-kotlin-project/"/>
+    <id>http://wliu6v.github.io/2017/Can-not-sync-gradle-for-kotlin-project/</id>
+    <published>2017-05-30T08:49:10.000Z</published>
+    <updated>2017-05-30T09:05:18.426Z</updated>
+    
+    <content type="html"><![CDATA[<blockquote>
+<p>需要确认 kotlin_version 是否最新</p>
+</blockquote>
+<a id="more"></a>
+<hr>
+<p>AndroidStudio 最近在 Canary 频道更新了 3.0 版本，其中加入了 Kotlin 的支持，于是就不需要安装 Kotlin 插件了。但是我使用 AndroidStudio 3.0 创建了新的项目并勾选了 Kotlin 的支持之后，gradle 会在 sync 时失败。错误信息如下：</p>
+<blockquote>
+<p>Error:Unable to find method ‘com.android.build.gradle.internal.variant.BaseVariantData.getOutputs()Ljava/util/List;’.<br>Possible causes for this unexpected error include:<ul><li>Gradle’s dependency cache may be corrupt (this sometimes occurs after a network connection timeout.)<br><a href="syncProject">Re-download dependencies and sync project (requires network)</a></li><li>The state of a Gradle build process (daemon) may be corrupt. Stopping all Gradle daemons may solve this problem.<br><a href="stopGradleDaemons">Stop Gradle build processes (requires restart)</a></li><li>Your project may be using a third-party plugin which is not compatible with the other plugins in the project or the version of Gradle requested by the project.</li></ul>In the case of corrupt Gradle processes, you can also try closing the IDE and then killing all Java processes.</p>
+</blockquote>
+<p>经过很多尝试之后，最终将 root project 的 build.gradle 文件中的 <code>ext.kotlin_version</code> 值从 1.1.2-3 改为了 1.1.2-4 之后解决。</p>
+<p>这应该会是篇时效性强的文章。之后再碰到同样的问题的话需要自行确认 Kotlin 插件的最新版本并尝试替换。</p>
+<p>其他尝试过的方案有：</p>
+<ul>
+<li>升级 jdk 至最新版本（1.8.0_131）并更新环境变量</li>
+<li>将 app 的 build.gradle 中的<br>  <code>compile &quot;org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version&quot;</code><br>  替换为<br>  <code>compile &quot;org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version&quot;</code><br>  （移除 <code>-jre7</code>）  </li>
+<li>确认 AndroidStudio Setting 中的 Gradle 使用的是 default gradle wrapper 而不是自定义的</li>
+</ul>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;blockquote&gt;
+&lt;p&gt;需要确认 kotlin_version 是否最新&lt;/p&gt;
+&lt;/blockquote&gt;
+    
+    </summary>
+    
+    
+      <category term="Android" scheme="http://wliu6v.github.io/tags/Android/"/>
+    
+      <category term="Kotlin" scheme="http://wliu6v.github.io/tags/Kotlin/"/>
+    
+  </entry>
   
   <entry>
     <title>为 Android 应用添加 RTL 语言支持</title>
@@ -334,9 +375,9 @@ private static final int MAX_EXECUTE_RESULTS = 250;
     </summary>
     
     
-      <category term="Windows" scheme="http://wliu6v.github.io/tags/Windows/"/>
-    
       <category term="Android" scheme="http://wliu6v.github.io/tags/Android/"/>
+    
+      <category term="Windows" scheme="http://wliu6v.github.io/tags/Windows/"/>
     
   </entry>
   
@@ -1054,39 +1095,6 @@ public void onItemClick(AdapterView&lt;?&gt; parent, View v, int position, long 
       <category term="Android" scheme="http://wliu6v.github.io/tags/Android/"/>
     
       <category term="Tips" scheme="http://wliu6v.github.io/tags/Tips/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Android 9-patch image</title>
-    <link href="http://wliu6v.github.io/2014/Android-9-patch-image/"/>
-    <id>http://wliu6v.github.io/2014/Android-9-patch-image/</id>
-    <published>2014-08-04T10:51:46.000Z</published>
-    <updated>2016-05-28T01:59:23.646Z</updated>
-    
-    <content type="html"><![CDATA[<ol>
-<li>如果源文件的后缀名是 <code>.png</code> (或其他），那么 Draw-9-patch 工具会将图片四周各加宽一像素（源文件如果是 <code>88*70</code>，那么生成的文件就是<code>90*72</code>的）。且生成的文件会将后缀名改为 <code>.9.png</code>。</li>
-<li>如果源文件后缀名是 <code>.9.png</code>，那么 Draw-9-patch 工具不会将图片加宽，而且貌似会自动识别之前绘制的边界。因此，如果原图是没有边界的，就不能以 <code>.9.png</code> 结尾。设计师交付图片之前应注意一下。</li>
-<li>Draw-9-patch 工具在保存图片的时候会自动将图片进行压缩。</li>
-<li>如果有多张图片要处理，建议每次处理完保存完一张之后都重新打开一次 Draw-9-patch 工具，否则可能会产生一些边界定位的 bug。但这种 bug 只影响编辑过程，不影响最终成品。</li>
-<li>拉伸点是可以不连续的。（没实际用过。。只是目测可以）</li>
-</ol>
-<a id="more"></a>]]></content>
-    
-    <summary type="html">
-    
-      &lt;ol&gt;
-&lt;li&gt;如果源文件的后缀名是 &lt;code&gt;.png&lt;/code&gt; (或其他），那么 Draw-9-patch 工具会将图片四周各加宽一像素（源文件如果是 &lt;code&gt;88*70&lt;/code&gt;，那么生成的文件就是&lt;code&gt;90*72&lt;/code&gt;的）。且生成的文件会将后缀名改为 &lt;code&gt;.9.png&lt;/code&gt;。&lt;/li&gt;
-&lt;li&gt;如果源文件后缀名是 &lt;code&gt;.9.png&lt;/code&gt;，那么 Draw-9-patch 工具不会将图片加宽，而且貌似会自动识别之前绘制的边界。因此，如果原图是没有边界的，就不能以 &lt;code&gt;.9.png&lt;/code&gt; 结尾。设计师交付图片之前应注意一下。&lt;/li&gt;
-&lt;li&gt;Draw-9-patch 工具在保存图片的时候会自动将图片进行压缩。&lt;/li&gt;
-&lt;li&gt;如果有多张图片要处理，建议每次处理完保存完一张之后都重新打开一次 Draw-9-patch 工具，否则可能会产生一些边界定位的 bug。但这种 bug 只影响编辑过程，不影响最终成品。&lt;/li&gt;
-&lt;li&gt;拉伸点是可以不连续的。（没实际用过。。只是目测可以）&lt;/li&gt;
-&lt;/ol&gt;
-    
-    </summary>
-    
-    
-      <category term="Android" scheme="http://wliu6v.github.io/tags/Android/"/>
     
   </entry>
   
