@@ -978,10 +978,17 @@
       
         
           
-            <h2 id="IntDef"><a href="#IntDef" class="headerlink" title="IntDef"></a>IntDef</h2><p>通过 <code>@IntDef</code> 标注可以限定一个方法的输入输出内容。</p>
-<p>枚举类型可以很好的限定值的范围，但是据说（没自己验证过- -）是有性能问题。在很多情况下，可以通过自定义的 <code>@IntDef</code> 和 <code>@StringDef</code> 来替代枚举类型。而且用起来也比在枚举类型里面实现 valueOf 等方法要简洁少许。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">IceCreamFlavourManager</span> </span>&#123;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">int</span> flavour;</div><div class="line"></div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> VANILLA = <span class="number">0</span>;</div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> CHOCOLATE = <span class="number">1</span>;</div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> STRAWBERRY = <span class="number">2</span>;</div><div class="line"></div><div class="line">    <span class="meta">@IntDef</span>(&#123;VANILLA, CHOCOLATE, STRAWBERRY&#125;)</div><div class="line">    <span class="keyword">public</span> <span class="meta">@interface</span> Flavour &#123;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Flavour</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getFlavour</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> flavour;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setFlavour</span><span class="params">(@Flavour <span class="keyword">int</span> flavour)</span> </span>&#123;</div><div class="line">        <span class="keyword">this</span>.flavour = flavour;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-          
+          IntDef通过 @IntDef 标注可以限定一个方法的输入输出内容。
+枚举类型可以很好的限定值的范围，但是据说（没自己验证过- -）是有性能问题。在很多情况下，可以通过自定义的 @IntDef 和 @StringDef 来替代枚举类型。而且用起来也比在枚举类型里面实现 valueOf 等方法要简洁少许。
+1234567891011121314151617181920public class IceCreamFlavourManager &#123;    private int flavour;    public static final int VANILLA = 0;    public static final int CHOCOLATE = 1;    public static
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2015/Android-Annotation/" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -1102,15 +1109,20 @@
       
         
           
-            <p>在 Windows 环境下进行 Android 开发的时候，如果修改了 CMD 的默认代码页，将会导致 Android Studio 无法正常编译。因为修改了默认代码页后会导致 <code>C:\Windows\System32\find.exe</code> 失效。</p>
-<p>将 CMD 的默认代码页修改回默认值即可。在简体中文环境下该默认值通常是 <code>chcp 936</code>。</p>
-<p>如果就是希望每次使用 CMD 的时候都是 UTF-8 代码页，可以建一个 bat 文件，如 <code>cmd_65001</code>，并将其添加至环境变量中。bat 文件的内容为 ：</p>
-<pre><code>C:\Windows\System32\cmd.exe /k CHCP 65001
-</code></pre><p>这样每次只要在运行里面输入 cmd_65001 ，就可以开启一个 UTF-8 代码页的 CMD 窗口了。</p>
-<p>不过好像不能改字体- =</p>
-<p><a href="http://superuser.com/questions/269818/change-default-code-page-of-windows-console-to-utf-8" target="_blank" rel="external">Ref : superuser - Change default code page of Windows console to UTF-8</a><br><a href="http://superuser.com/questions/176737/why-find-exe-not-work-in-windows-7" target="_blank" rel="external">Ref : superuser - Why find.exe not work in Windows 7?</a></p>
-
-          
+          在 Windows 环境下进行 Android 开发的时候，如果修改了 CMD 的默认代码页，将会导致 Android Studio 无法正常编译。因为修改了默认代码页后会导致 C:\Windows\System32\find.exe 失效。
+将 CMD 的默认代码页修改回默认值即可。在简体中文环境下该默认值通常是 chcp 936。
+如果就是希望每次使用 CMD 的时候都是 UTF-8 代码页，可以建一个 bat 文件，如 cmd_65001，并将其添加至环境变量中。bat 文件的内容为 ：
+C:\Windows\System32\cmd.exe /k CHCP 65001
+这样每次只要在运行里面输入 cmd_65001 ，就可以开启一个 UTF-8 代码页的 CMD 窗口了。
+不过好像不
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2015/Android-Studio-Can-t-Build-After-Change-Default-Code-Page-of-Windows-Console-to-UTF-8/" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -1231,11 +1243,16 @@
       
         
           
-            <p>要为 ActionBar 上的 SearchView 的 EditText 设置 onClickListener，可以考虑通过递归的方式为 SearchView 的所有子 View / ViewGroup 设置 onClickListener。代码如下：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">setOnClickListenerForViewGroup</span><span class="params">(View v, View.OnClickListener listener)</span> </span>&#123;</div><div class="line">	<span class="keyword">if</span> (v <span class="keyword">instanceof</span> ViewGroup) &#123;</div><div class="line">		ViewGroup group = (ViewGroup)v;</div><div class="line">		<span class="keyword">int</span> count = group.getChildCount();</div><div class="line">		<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; count; i++) &#123;</div><div class="line">			View child = group.getChildAt(i);</div><div class="line">			<span class="keyword">if</span> (child <span class="keyword">instanceof</span> LinearLayout || child <span class="keyword">instanceof</span> RelativeLayout) &#123;</div><div class="line">				setOnClickListenerForViewGroup(child, listener);</div><div class="line">			&#125;</div><div class="line"></div><div class="line">			<span class="keyword">if</span> (child <span class="keyword">instanceof</span> TextView) &#123;</div><div class="line">				TextView text = (TextView)child;</div><div class="line">				text.setFocusable(<span class="keyword">false</span>);</div><div class="line">			&#125;</div><div class="line">			child.setOnClickListener(listener);</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>当然也可以通过类似的方式获取到 EditText 对象，并对其设置 onClickListener() </p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> EditText <span class="title">getEditTextFromSearchView</span><span class="params">(View v)</span> </span>&#123;</div><div class="line">	EditText et = <span class="keyword">null</span>;</div><div class="line">	<span class="keyword">if</span> (v <span class="keyword">instanceof</span> ViewGroup) &#123;</div><div class="line">		ViewGroup group = (ViewGroup)v;</div><div class="line">		<span class="keyword">int</span> count = group.getChildCount();</div><div class="line">		<span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; count; i++) &#123;</div><div class="line">			View child = group.getChildAt(i);</div><div class="line">			<span class="keyword">if</span> (child <span class="keyword">instanceof</span> LinearLayout || child <span class="keyword">instanceof</span> RelativeLayout) &#123;</div><div class="line">				EditText tmpEt = getEditTextFromSearchView(child);</div><div class="line">				<span class="keyword">if</span> (tmpEt != <span class="keyword">null</span>) &#123;</div><div class="line">					et = tmpEt;</div><div class="line">				&#125;</div><div class="line">			&#125;</div><div class="line"></div><div class="line">			<span class="keyword">if</span> (child <span class="keyword">instanceof</span> EditText) &#123;</div><div class="line">				et = (EditText) child;</div><div class="line">			&#125;</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line">	<span class="keyword">return</span> et;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-          
+          要为 ActionBar 上的 SearchView 的 EditText 设置 onClickListener，可以考虑通过递归的方式为 SearchView 的所有子 View / ViewGroup 设置 onClickListener。代码如下：
+123456789101112131415161718public static void setOnClickListenerForViewGroup(View v, View.OnClickListener listener) &#123;	if (v instanceof ViewGroup) &#123;		ViewGroup group = (ViewGroup)v;		int count = group.getChildCoun
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2015/Set-onClickListener-for-EditText-in-ActionBar-s-SearchView/" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -1356,13 +1373,17 @@
       
         
           
-            <p>当 ListPreference 中执行 getSummary 的时候碰到了字符 ‘%’ 时会导致应用 crash。</p>
-<h3 id="解决方式"><a href="#解决方式" class="headerlink" title="解决方式"></a>解决方式</h3><p>重写 ListPreference 的 getSummary 方法，避免在遇到 ‘%’ 的时候 crash。</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div></pre></td><td class="code"><pre><div class="line">	private class NoneFormatSummaryListPreference extends ListPreference &#123;</div><div class="line"></div><div class="line">		public NoneFormatSummaryListPreference(Context context) &#123;</div><div class="line">			super(context);</div><div class="line">		&#125;</div><div class="line"></div><div class="line">		@Override</div><div class="line">		public CharSequence getSummary() &#123;</div><div class="line">			try &#123;</div><div class="line">				// for call super.super.getSummary()</div><div class="line">				CharSequence[] entries = super.getEntries();</div><div class="line">				super.setEntries(null);</div><div class="line">				CharSequence result = super.getSummary();</div><div class="line">				super.setEntries(entries);</div><div class="line">				return result;</div><div class="line">				// return super.getSummary();</div><div class="line">			&#125; catch (Exception e) &#123;</div><div class="line">				e.printStackTrace();</div><div class="line">				return "";</div><div class="line">			&#125;</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line">``` </div><div class="line"></div><div class="line">###	原理</div><div class="line"></div><div class="line">以下内容皆引用自 [Preference Summary or Secondary Text](http://gmariotti.blogspot.sg/2013/02/preference-summary-or-secondary-text.html) :</div><div class="line"></div><div class="line">__A note about ListPreference.__ In [android doc](http://developer.android.com/reference/android/preference/ListPreference.html#setSummary%28java.lang.CharSequence%29) we can read:</div><div class="line"></div><div class="line">&gt; If the summary has a String formatting marker in it (i.e. “%s” or “%1$s”), then the current entry value will be substituted in its place when it’s retrieved.</div><div class="line"></div><div class="line">As a result, if you set “summary” that contains “%” char (like "5%"), you can have java.util.UnknownFormatConversionException: Conversion: because it may be an unknown format.</div><div class="line">The reason is here (standard method in ListPreference)</div></pre></td></tr></table></figure>
-<p>@Override<br>public CharSequence getSummary() {<br>    final CharSequence entry = getEntry();<br>    if (mSummary == null || entry == null) {<br>        return super.getSummary();<br>    } else {<br>        return String.format(mSummary, entry);<br>    }<br>}<br>```</p>
-<p>If you want to use value like “5%” in ListPreference, in API Level 11 or higher, you need to be careful.<br>I suggest you create a subclass of ListPreference, override getSummary() method and return whatever you need, skipping the call to String.format().<br>Alternatively you can obtain percent character in String.format() by specifying “%%”. </p>
-
-          
+          当 ListPreference 中执行 getSummary 的时候碰到了字符 ‘%’ 时会导致应用 crash。
+解决方式重写 ListPreference 的 getSummary 方法，避免在遇到 ‘%’ 的时候 crash。
+12345678910111213141516171819202122232425262728293031323334	private class NoneFormatSummaryListPreference extends ListPreference &#123;		public NoneFormatSummaryListPreference(Context context) &#123;			super(context);		&#125;		@Over
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2015/Preference-Crash-When-getSummary-Contains/" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -1483,20 +1504,19 @@
       
         
           
-            <p>Integer 类中包含三个名字比较相近的静态方法 : <code>getInteger()</code>, <code>valueOf()</code>, <code>parseInt()</code> 。这三个方法名字差不多，但实际上，getInteger 方法是个坑。</p>
-<p>valueOf() 与 parseInt() 这两个方法效果比较接近。都是将某个 String 转为数值类型。其中，valueOf() 方法将会把 int 或 String 转成 Integer 类型，parseInt() 方法将会把 String 转成 int 类型。</p>
-<p>但对于 getInteger() 并非如此。JAVADoc 对 getInteger() 方法的描述是：</p>
-<blockquote>
-<p>   Returns the Integer value of the system property identified by string.<br>   Returns null if string is null or empty, if the property can not be found or if its value can not be parsed as an integer.</p>
-<p>   Parameters</p>
-<p>   string<br>       the name of the requested system property.</p>
-<p>   Returns<br>       the requested property’s value as an Integer or null.</p>
-</blockquote>
-<p>因此如果对一个任意数值字符串使用 getInteger() 方法，结果通常为 <code>null</code>。</p>
-<p>类似的， <code>Boolean.getBoolean(&quot;true&quot;);</code> 将得到结果 <code>Boolean.FALSE</code>。</p>
-<p><a href="http://konigsberg.blogspot.com/2008/04/integergetinteger-are-you-kidding-me.html" target="_blank" rel="external">Ref : Integer.getInteger. Are you kidding me?</a></p>
+          Integer 类中包含三个名字比较相近的静态方法 : getInteger(), valueOf(), parseInt() 。这三个方法名字差不多，但实际上，getInteger 方法是个坑。
+valueOf() 与 parseInt() 这两个方法效果比较接近。都是将某个 String 转为数值类型。其中，valueOf() 方法将会把 int 或 String 转成 Integer 类型，parseInt() 方法将会把 String 转成 int 类型。
+但对于 getInteger() 并非如此。JAVADoc 对 getInteger() 方法的描述是：
 
-          
+   Returns the Integer value of the system property identifie
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2015/Integer-getInteger/" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -1590,10 +1610,10 @@
             
             
             <div class="site-state-item site-state-tags">
-              
+              <a href="/tags/index.html">
                 <span class="site-state-item-count">5</span>
                 <span class="site-state-item-name">标签</span>
-              
+              </a>
             </div>
           
 
@@ -1635,7 +1655,7 @@
   &copy;  2014 - 
   <span itemprop="copyrightYear">2017</span>
   <span class="with-love">
-    <i class="fa fa-heart"></i>
+    <i class="fa fa-star"></i>
   </span>
   <span class="author" itemprop="copyrightHolder">6v</span>
 </div>

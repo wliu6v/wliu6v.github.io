@@ -465,16 +465,23 @@
       
         
           
-            <h2 id="优质控件"><a href="#优质控件" class="headerlink" title="优质控件"></a>优质控件</h2><h3 id="代码家"><a href="#代码家" class="headerlink" title="代码家"></a><a href="http://blog.daimajia.com/" target="_blank" rel="external">代码家</a></h3><p>编写了许多动画不错的 view 控件。比如 <a href="http://blog.daimajia.com/2014/09/this-is-productivity/" target="_blank" rel="external">AndroidSwipeLayout</a> 、 <a href="http://blog.daimajia.com/2014/08/android-view-hover/" target="_blank" rel="external">AndroidViewHover</a> 等</p>
-<h2 id="工具包"><a href="#工具包" class="headerlink" title="工具包"></a>工具包</h2><p><a href="http://apistore.baidu.com/astore/classificationservicelist/33.html" target="_blank" rel="external">API Store</a> 将各种公开的 API 汇总起来的一个网站。包括二维码 API 或者一些地图、推送、三方登录之类的 API</p>
-<p><a href="http://www.maiziedu.com/course/2/" target="_blank" rel="external">麦子学院</a></p>
-<p><a href="http://stormzhang.gitcafe.com/android/2014/07/07/learn-android-from-rookie/" target="_blank" rel="external">Android学习之路</a></p>
-<h2 id="Code-Style"><a href="#Code-Style" class="headerlink" title="Code Style"></a>Code Style</h2><p><a href="http://blog.jobbole.com/77051/" target="_blank" rel="external">对代码命名的一点思考和理解</a></p>
-<h2 id="ListView"><a href="#ListView" class="headerlink" title="ListView"></a>ListView</h2><p><a href="http://geecity.se/2013/06/dragsortlistview-with-sections/#" target="_blank" rel="external">DragSortListView with Sections</a></p>
-<h2 id="Others"><a href="#Others" class="headerlink" title="Others"></a>Others</h2><p><a href="http://ingramchen.io/blog/2014/09/prevention-of-android-dex-64k-method-size-limit.html" target="_blank" rel="external">預防 Android Dex 64k Method Size Limit</a></p>
-<p><a href="http://blog.csdn.net/ashqal/article/details/21869151" target="_blank" rel="external">【android ndk】macos环境下Android Studio中利用gradle编译jni模块及配置 </a></p>
+          优质控件代码家编写了许多动画不错的 view 控件。比如 AndroidSwipeLayout 、 AndroidViewHover 等
+工具包API Store 将各种公开的 API 汇总起来的一个网站。包括二维码 API 或者一些地图、推送、三方登录之类的 API
+麦子学院
+Android学习之路
+Code Style对代码命名的一点思考和理解
+ListViewDragSortListView with Sections
+Others預防 Android Dex 64k Method Size Limit
+【android ndk】macos环境下Android Studio中利用gradle编译jni模块及配置 
 
           
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2014/bookmarks/" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -595,12 +602,19 @@
       
         
           
-            <p>参考以下系列文章</p>
-<p><a href="http://zipperary.com/2013/05/28/hexo-guide-1/" target="_blank" rel="external">http://zipperary.com/2013/05/28/hexo-guide-1/</a></p>
-<p><a href="http://zipperary.com/categories/hexo/" target="_blank" rel="external">http://zipperary.com/categories/hexo/</a></p>
-<p><a href="http://wsgzao.github.io/post/hexo-scroll-to-top/" target="_blank" rel="external">添加 “回到顶部” 按钮</a></p>
+          参考以下系列文章
+http://zipperary.com/2013/05/28/hexo-guide-1/
+http://zipperary.com/categories/hexo/
+添加 “回到顶部” 按钮
 
           
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2014/Hexo-guide/" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -981,21 +995,24 @@
       
         
           
-            <p>当同屏存在自定义的 TabBar 的时候，偶尔会出现这样一个问题：当光标在 EditText 中，敲击物理键盘的任意键，EditText 会失去焦点。此时按方向键，发现 TabBar 发生了左右移动，说明焦点被其获取。</p>
-<p>要解决此问题，只需添加如下语句：</p>
-<pre><code>mTabHost.addOnAttachStateChangeListener(new OnAttachStateChangeListener() {
+          当同屏存在自定义的 TabBar 的时候，偶尔会出现这样一个问题：当光标在 EditText 中，敲击物理键盘的任意键，EditText 会失去焦点。此时按方向键，发现 TabBar 发生了左右移动，说明焦点被其获取。
+要解决此问题，只需添加如下语句：
+mTabHost.addOnAttachStateChangeListener(new OnAttachStateChangeListener() {
 
         @Override
         public void onViewDetachedFromWindow(View v) {}
 
         @Override
         public void onViewAttachedToWindow(View v) {
-            mTabHost.getViewTreeObserver().removeOnTouchModeChangeListener(mTabHost);
-        }
-    });
-</code></pre><p>问题来源： <a href="https://groups.google.com/forum/#!topic/android-developers/8_3R6xcoiIY" target="_blank" rel="external">https://groups.google.com/forum/#!topic/android-developers/8_3R6xcoiIY</a><br>解决方法来源：<a href="https://code.google.com/p/android/issues/detail?id=2516" target="_blank" rel="external">https://code.google.com/p/android/issues/detail?id=2516</a> 中的第16楼。</p>
 
-          
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2014/EditText-在物理键盘输入时失去焦点问题/" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -1116,12 +1133,19 @@
       
         
           
-            <h1 id="Windows7-与-Ubuntu-双系统安装"><a href="#Windows7-与-Ubuntu-双系统安装" class="headerlink" title="Windows7 与 Ubuntu 双系统安装"></a>Windows7 与 Ubuntu 双系统安装</h1><p><a href="http://bbs.pcbeta.com/viewthread-1046663-1-1.html" target="_blank" rel="external">http://bbs.pcbeta.com/viewthread-1046663-1-1.html</a><br><a href="http://blog.csdn.net/lvanneo/article/details/16885121" target="_blank" rel="external">http://blog.csdn.net/lvanneo/article/details/16885121</a></p>
-<h1 id="在-Ubuntu-上安装搜狗输入法"><a href="#在-Ubuntu-上安装搜狗输入法" class="headerlink" title="在 Ubuntu 上安装搜狗输入法"></a>在 Ubuntu 上安装搜狗输入法</h1><p>首先尝试官网的安装，如果不行的话，需要切换输入法设置。方法是输入 im-config，然后选择 ok - yes - fcitx 。然后重启。</p>
-<p><a href="http://www.2cto.com/os/201405/305463.html" target="_blank" rel="external">http://www.2cto.com/os/201405/305463.html</a></p>
-<h1 id="aapt-exception"><a href="#aapt-exception" class="headerlink" title="aapt exception"></a>aapt exception</h1><p><a href="http://askubuntu.com/questions/147400/problems-with-eclipse-and-android-sdk" target="_blank" rel="external">http://askubuntu.com/questions/147400/problems-with-eclipse-and-android-sdk</a></p>
+          Windows7 与 Ubuntu 双系统安装http://bbs.pcbeta.com/viewthread-1046663-1-1.htmlhttp://blog.csdn.net/lvanneo/article/details/16885121
+在 Ubuntu 上安装搜狗输入法首先尝试官网的安装，如果不行的话，需要切换输入法设置。方法是输入 im-config，然后选择 ok - yes - fcitx 。然后重启。
+http://www.2cto.com/os/201405/305463.html
+aapt exceptionhttp://askubuntu.com/questions/147400/problems-with-eclipse-and-android-sdk
 
           
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2014/Memo/" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -1242,11 +1266,18 @@
       
         
           
-            <p>RelativeLayout 在 Android 4.1.1 及其之前版本执行 measure 有时会 crash。</p>
-<p>可尝试在 inflate 的时候指定其 parentView 参数。</p>
-<p>详见 <a href="http://blog.csdn.net/wangfei584521/article/details/25987377" target="_blank" rel="external">http://blog.csdn.net/wangfei584521/article/details/25987377</a> 中的 solution 1</p>
+          RelativeLayout 在 Android 4.1.1 及其之前版本执行 measure 有时会 crash。
+可尝试在 inflate 的时候指定其 parentView 参数。
+详见 http://blog.csdn.net/wangfei584521/article/details/25987377 中的 solution 1
 
           
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2014/onmeasure-crashed/" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -1600,10 +1631,10 @@
             
             
             <div class="site-state-item site-state-tags">
-              
+              <a href="/tags/index.html">
                 <span class="site-state-item-count">5</span>
                 <span class="site-state-item-name">标签</span>
-              
+              </a>
             </div>
           
 
@@ -1645,7 +1676,7 @@
   &copy;  2014 - 
   <span itemprop="copyrightYear">2017</span>
   <span class="with-love">
-    <i class="fa fa-heart"></i>
+    <i class="fa fa-star"></i>
   </span>
   <span class="author" itemprop="copyrightHolder">6v</span>
 </div>
