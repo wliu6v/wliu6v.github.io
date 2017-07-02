@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://wliu6v.github.io/"/>
-  <updated>2017-07-02T07:00:39.701Z</updated>
+  <updated>2017-07-02T07:02:08.864Z</updated>
   <id>http://wliu6v.github.io/</id>
   
   <author>
@@ -16,13 +16,16 @@
   <generator uri="http://hexo.io/">Hexo</generator>
   
   <entry>
-    <title>elasticsearch-note</title>
+    <title>一些 Elasticsearch 知识点</title>
     <link href="http://wliu6v.github.io/2017/elasticsearch-note/"/>
     <id>http://wliu6v.github.io/2017/elasticsearch-note/</id>
     <published>2017-07-02T04:56:43.000Z</published>
-    <updated>2017-07-02T07:00:39.701Z</updated>
+    <updated>2017-07-02T07:02:08.864Z</updated>
     
-    <content type="html"><![CDATA[<p>本文面向的环境是 ElasticSearch 5 系列版本。列一些在应用中碰到的知识点以便于查阅</p>
+    <content type="html"><![CDATA[<blockquote>
+<p>本文面向的环境是 ElasticSearch 5 系列版本。列一些在应用中碰到的知识点以便于查阅</p>
+</blockquote>
+<a id="more"></a>
 <h2 id="Elasticsearch-教程："><a href="#Elasticsearch-教程：" class="headerlink" title="Elasticsearch 教程："></a>Elasticsearch 教程：</h2><ul>
 <li><a href="https://www.elastic.co/guide/en/elasticsearch/guide/current/index.html" target="_blank" rel="external">Elasticsearch: The Definitive Guide</a><ul>
 <li>最主要的官方教程，从入门到各个知识点的概述都有。</li>
@@ -54,8 +57,9 @@
     
     <summary type="html">
     
-      &lt;p&gt;本文面向的环境是 ElasticSearch 5 系列版本。列一些在应用中碰到的知识点以便于查阅&lt;/p&gt;
-&lt;h2 id=&quot;Elasticsearch-教程：&quot;&gt;&lt;a href=&quot;#Elasticsearch-教程：&quot; class=&quot;headerlink&quot; title=&quot;El
+      &lt;blockquote&gt;
+&lt;p&gt;本文面向的环境是 ElasticSearch 5 系列版本。列一些在应用中碰到的知识点以便于查阅&lt;/p&gt;
+&lt;/blockquote&gt;
     
     </summary>
     
