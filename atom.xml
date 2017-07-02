@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://wliu6v.github.io/"/>
-  <updated>2017-05-30T09:19:46.560Z</updated>
+  <updated>2017-07-02T07:00:39.701Z</updated>
   <id>http://wliu6v.github.io/</id>
   
   <author>
@@ -14,6 +14,55 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>elasticsearch-note</title>
+    <link href="http://wliu6v.github.io/2017/elasticsearch-note/"/>
+    <id>http://wliu6v.github.io/2017/elasticsearch-note/</id>
+    <published>2017-07-02T04:56:43.000Z</published>
+    <updated>2017-07-02T07:00:39.701Z</updated>
+    
+    <content type="html"><![CDATA[<p>本文面向的环境是 ElasticSearch 5 系列版本。列一些在应用中碰到的知识点以便于查阅</p>
+<h2 id="Elasticsearch-教程："><a href="#Elasticsearch-教程：" class="headerlink" title="Elasticsearch 教程："></a>Elasticsearch 教程：</h2><ul>
+<li><a href="https://www.elastic.co/guide/en/elasticsearch/guide/current/index.html" target="_blank" rel="external">Elasticsearch: The Definitive Guide</a><ul>
+<li>最主要的官方教程，从入门到各个知识点的概述都有。</li>
+<li>在教程中有很多代码可以直接点击在 SENSE 中查看，但是最新版的 ES 已经没有 SENSE 插件了（而是直接整合进了 Kibana），因此需要先修改 SENSE 地址的指向才能正常工作。<br>  <code>http://localhost:5601/app/kibana#/dev_tools/console</code></li>
+</ul>
+</li>
+<li><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/index.html" target="_blank" rel="external">Elasticsearch: 权威指南（上面那个的中文版）</a>  </li>
+<li><a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/index.html" target="_blank" rel="external">Elasticsearch Reference</a><ul>
+<li>看上去更为详细的教程，对每个 API 都有讲解，适合用来查阅而不是用来学习</li>
+</ul>
+</li>
+</ul>
+<h2 id="知识点"><a href="#知识点" class="headerlink" title="知识点"></a>知识点</h2><h3 id="如何查看分析器的工作方式"><a href="#如何查看分析器的工作方式" class="headerlink" title="如何查看分析器的工作方式"></a>如何查看分析器的工作方式</h3><p><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/analysis-intro.html" target="_blank" rel="external">https://www.elastic.co/guide/cn/elasticsearch/guide/current/analysis-intro.html</a></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">GET /_analyze</div><div class="line">&#123;</div><div class="line">  &quot;analyzer&quot;: &quot;standard&quot;,</div><div class="line">  &quot;text&quot;: &quot;Text to analyze&quot;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h3 id="如何查看一个搜索的条件是否合法"><a href="#如何查看一个搜索的条件是否合法" class="headerlink" title="如何查看一个搜索的条件是否合法"></a>如何查看一个搜索的条件是否合法</h3><p><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/validating-queries.html" target="_blank" rel="external">https://www.elastic.co/guide/cn/elasticsearch/guide/current/validating-queries.html</a><br>使用 validate-query API 进行验证<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">GET /gb/tweet/_validate/query?explain</div><div class="line">&#123;</div><div class="line">   &quot;query&quot;: &#123;</div><div class="line">      &quot;tweet&quot; : &#123;</div><div class="line">         &quot;match&quot; : &quot;really powerful&quot;</div><div class="line">      &#125;</div><div class="line">   &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h3 id="如何同时对多个字段进行排序，如何对一个字段中的多个值进行排序"><a href="#如何同时对多个字段进行排序，如何对一个字段中的多个值进行排序" class="headerlink" title="如何同时对多个字段进行排序，如何对一个字段中的多个值进行排序"></a>如何同时对多个字段进行排序，如何对一个字段中的多个值进行排序</h3><p><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/_Sorting.html" target="_blank" rel="external">https://www.elastic.co/guide/cn/elasticsearch/guide/current/_Sorting.html</a><br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">GET /_search</div><div class="line">&#123;</div><div class="line">    &quot;query&quot; : &#123;</div><div class="line">        &quot;bool&quot; : &#123;</div><div class="line">            &quot;must&quot;:   &#123; &quot;match&quot;: &#123; &quot;tweet&quot;: &quot;manage text search&quot; &#125;&#125;,</div><div class="line">            &quot;filter&quot; : &#123; &quot;term&quot; : &#123; &quot;user_id&quot; : 2 &#125;&#125;</div><div class="line">        &#125;</div><div class="line">    &#125;,</div><div class="line">    &quot;sort&quot;: [</div><div class="line">        &#123; &quot;date&quot;:   &#123; &quot;order&quot;: &quot;desc&quot; &#125;&#125;,</div><div class="line">        &#123; &quot;_score&quot;: &#123; &quot;order&quot;: &quot;desc&quot; &#125;&#125;</div><div class="line">    ]</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h3 id="如何将一个字段定义多种索引方式"><a href="#如何将一个字段定义多种索引方式" class="headerlink" title="如何将一个字段定义多种索引方式"></a>如何将一个字段定义多种索引方式</h3><p><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/multi-fields.html" target="_blank" rel="external">https://www.elastic.co/guide/cn/elasticsearch/guide/current/multi-fields.html</a><br>一个简单的方法是用两种方式对同一个字符串进行索引，这将在文档中包括两个字段： analyzed 用于搜索， not_analyzed 用于排序</p>
+<p>但是保存相同的字符串两次在 _source 字段是浪费空间的。 我们真正想要做的是传递一个 单字段 但是却用两种方式索引它。所有的 _core_field 类型 (strings, numbers, Booleans, dates) 接收一个 fields 参数</p>
+<p>该参数允许你转化一个简单的映射如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">&quot;tweet&quot;: &#123;</div><div class="line">    &quot;type&quot;:     &quot;string&quot;,</div><div class="line">    &quot;analyzer&quot;: &quot;english&quot;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>为一个多字段映射如：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">&quot;tweet&quot;: &#123; </div><div class="line">    &quot;type&quot;:     &quot;string&quot;,</div><div class="line">    &quot;analyzer&quot;: &quot;english&quot;,</div><div class="line">    &quot;fields&quot;: &#123;</div><div class="line">        &quot;raw&quot;: &#123; </div><div class="line">            &quot;type&quot;:  &quot;string&quot;,</div><div class="line">            &quot;index&quot;: &quot;not_analyzed&quot;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h3 id="关于重建索引"><a href="#关于重建索引" class="headerlink" title="关于重建索引"></a>关于重建索引</h3><p><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/root-object.html" target="_blank" rel="external">https://www.elastic.co/guide/cn/elasticsearch/guide/current/root-object.html</a></p>
+<p>Elasticsearch 会存储 _source 字段，因此当我们需要重建索引的时候，我们可以直接从 ES 如此做，而不需要从远程的数据库中重新获取。</p>
+<p>重建索引时使用 <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-reindex.html" target="_blank" rel="external">reindex API</a> 实现。该 API 只会重建所有的数据，但不会覆盖 setting。因此应该先创建新的 index 并调整好相关的设置，然后使用该 API 更新数据。 </p>
+<p>需要注意的是，因为重建索引是将旧的索引放到新的不同的索引中，因此名字会发生变化。如果需要在运行中进行无缝切换，可以使用 <a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/index-aliases.html" target="_blank" rel="external">索引别名</a> 屏蔽掉背后的索引的变化。</p>
+<h3 id="遇到新添加的字段时应抛出异常"><a href="#遇到新添加的字段时应抛出异常" class="headerlink" title="遇到新添加的字段时应抛出异常"></a>遇到新添加的字段时应抛出异常</h3><p><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/dynamic-mapping.html" target="_blank" rel="external">https://www.elastic.co/guide/cn/elasticsearch/guide/current/dynamic-mapping.html</a><br>Elasticsearch 会自动对新添加的字段进行分析并决定其类型，但是在大多数情况下这种做法都不是我们想要的。因此可以将新字段的处理方式改为严格模式，使其遇到新字段的时候直接抛出异常。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">PUT /my_index</div><div class="line">&#123;</div><div class="line">    &quot;mappings&quot;: &#123;</div><div class="line">        &quot;my_type&quot;: &#123;</div><div class="line">            &quot;dynamic&quot;:      &quot;strict&quot;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h3 id="在搜索结果中返回分数的计算方式"><a href="#在搜索结果中返回分数的计算方式" class="headerlink" title="在搜索结果中返回分数的计算方式"></a>在搜索结果中返回分数的计算方式</h3><p><a href="https://www.elastic.co/guide/cn/elasticsearch/guide/current/relevance-intro.html" target="_blank" rel="external">https://www.elastic.co/guide/cn/elasticsearch/guide/current/relevance-intro.html</a><br>通过在任意搜索语句后面添加 explain 参数以输出每个分数计算的方式。<br>如果想查看某个文档为什么没有被搜索到，使用 /index/type/id/_explain 的方式进行调用。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;本文面向的环境是 ElasticSearch 5 系列版本。列一些在应用中碰到的知识点以便于查阅&lt;/p&gt;
+&lt;h2 id=&quot;Elasticsearch-教程：&quot;&gt;&lt;a href=&quot;#Elasticsearch-教程：&quot; class=&quot;headerlink&quot; title=&quot;El
+    
+    </summary>
+    
+    
+      <category term="elasticsearch" scheme="http://wliu6v.github.io/tags/elasticsearch/"/>
+    
+  </entry>
   
   <entry>
     <title>升级到 AndroidStudio 3.0 Canary 之后新建 Kotlin 项目无法编译的问题</title>
@@ -1031,70 +1080,6 @@ mGalleryView.setOnScrollListener(new AbsListView.OnScrollListener() {
     
     
       <category term="Android" scheme="http://wliu6v.github.io/tags/Android/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Android Tips</title>
-    <link href="http://wliu6v.github.io/2014/Memo-Android/"/>
-    <id>http://wliu6v.github.io/2014/Memo-Android/</id>
-    <published>2014-08-06T07:14:12.000Z</published>
-    <updated>2016-05-28T02:00:28.411Z</updated>
-    
-    <content type="html"><![CDATA[<p>这篇文章会集合 Android 开发过程中遇到的奇怪的各种坑与小技巧。持续更新。</p>
-<a id="more"></a>
-<h2 id="GridView-中使用正方形布局"><a href="#GridView-中使用正方形布局" class="headerlink" title="GridView 中使用正方形布局"></a>GridView 中使用正方形布局</h2><p><a href="http://blog.chengyunfeng.com/?p=465" target="_blank" rel="external">http://blog.chengyunfeng.com/?p=465</a><br>重写 onMeasure 方法，将其高度设置为宽度。而宽度是可以去动态变化的。</p>
-<h2 id="Enable-Scroll-in-ScrollView"><a href="#Enable-Scroll-in-ScrollView" class="headerlink" title="Enable Scroll in ScrollView"></a>Enable Scroll in ScrollView</h2><p>比如 EditText，经常会需要在 ScrollView 或者 ListView 中实现滚动效果，需要添加如下代码。</p>
-<pre><code>EditText EtOne = (EditText) findViewById(R.id.comment1);
-EtOne.setOnTouchListener(new OnTouchListener() {
-        @Override
-        public boolean onTouch(View v, MotionEvent event) {
-            if (v.getId() == R.id.comment1) {
-                v.getParent().requestDisallowInterceptTouchEvent(true);
-                switch (event.getAction() &amp; MotionEvent.ACTION_MASK) {
-                case MotionEvent.ACTION_UP:
-                    v.getParent().requestDisallowInterceptTouchEvent(false);
-                    break;
-                }
-            }
-            return false;
-        }
-    });
-</code></pre><h2 id="Android-中文字符串排序"><a href="#Android-中文字符串排序" class="headerlink" title="Android 中文字符串排序"></a>Android 中文字符串排序</h2><p><a href="http://blog.csdn.net/luoboo525/article/details/8594561" target="_blank" rel="external">http://blog.csdn.net/luoboo525/article/details/8594561</a></p>
-<p><a href="http://blog.csdn.net/p106786860/article/details/9811929" target="_blank" rel="external">http://blog.csdn.net/p106786860/article/details/9811929</a></p>
-<h2 id="远程连接-ADB"><a href="#远程连接-ADB" class="headerlink" title="远程连接 ADB"></a>远程连接 ADB</h2><ol>
-<li>用 USB 连接手机，开启调试模式</li>
-<li>adb tcpip 5555</li>
-<li>拔掉数据线。</li>
-<li>adb connect 192.168.1.3:5555</li>
-</ol>
-<p>其中端口号任选，IP地址为手机所在的IP地址。</p>
-<p><a href="http://j796160836.pixnet.net/blog/post/29108155-%5Bandroid%5D-debug%E4%B8%8D%E7%94%A8%E7%B7%9A%EF%BC%8C%E7%94%A8adb%E9%80%A3%E6%8E%A53g-wifi%E6%89%8B%E6%A9%9F" target="_blank" rel="external">原文</a></p>
-<p><a href="http://developer.android.com/guide/topics/connectivity/usb/index.html" target="_blank" rel="external">官方文档</a></p>
-<h2 id="Github-Rebase"><a href="#Github-Rebase" class="headerlink" title="Github Rebase"></a>Github Rebase</h2><p>B分支对A分支用过Rebase之后，如果以后还想对A分支Rebase，就不能对C分支再Rebase了。</p>
-<h2 id="Android-Studio-导入第三方依赖包"><a href="#Android-Studio-导入第三方依赖包" class="headerlink" title="Android Studio 导入第三方依赖包"></a>Android Studio 导入第三方依赖包</h2><p><a href="http://www.cnblogs.com/neozhu/p/3458759.html" target="_blank" rel="external">http://www.cnblogs.com/neozhu/p/3458759.html</a></p>
-<h2 id="依赖注入"><a href="#依赖注入" class="headerlink" title="依赖注入"></a>依赖注入</h2><p>Roboguice / 依赖注入 / @InjectView / …</p>
-<p><a href="http://www.cnblogs.com/keyindex/p/3366666.html" target="_blank" rel="external">http://www.cnblogs.com/keyindex/p/3366666.html</a>    </p>
-<h2 id="ListView"><a href="#ListView" class="headerlink" title="ListView"></a>ListView</h2><h3 id="getChildAt-index"><a href="#getChildAt-index" class="headerlink" title="getChildAt(index)"></a>getChildAt(index)</h3><p>在 <code>getChildAt(index)</code> 方法中，index 是当前可视范围中的位置。<br>通常使用 <code>position - getFirstVisiblePosition()</code> 作为 index 参数。</p>
-<h3 id="HeaderView-position"><a href="#HeaderView-position" class="headerlink" title="HeaderView position"></a>HeaderView position</h3><p><a href="http://blog.chengbo.net/2012/03/09/onitemclick-return-wrong-position-when-listview-has-headerview.html" target="_blank" rel="external">当 ListView 有 Header 时， onItemClick 里的 position 不正确</a></p>
-<p>应以如下方式调用：</p>
-<pre><code>@Override
-public void onItemClick(AdapterView&lt;?&gt; parent, View v, int position, long id) {
-    doSomething(parent.getAdapter().getItem(position));
-}
-</code></pre><h2 id="通过-return-在测试过程中避免执行后续的语句"><a href="#通过-return-在测试过程中避免执行后续的语句" class="headerlink" title="通过 return 在测试过程中避免执行后续的语句"></a>通过 return 在测试过程中避免执行后续的语句</h2><p>如果在一个方法中，需要避免后续语句的执行，直接在前面加 return 是不行的，因为这样会报错。但用 <code>if (true) return;</code> 就可以了。</p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;这篇文章会集合 Android 开发过程中遇到的奇怪的各种坑与小技巧。持续更新。&lt;/p&gt;
-    
-    </summary>
-    
-    
-      <category term="Android" scheme="http://wliu6v.github.io/tags/Android/"/>
-    
-      <category term="Tips" scheme="http://wliu6v.github.io/tags/Tips/"/>
     
   </entry>
   
