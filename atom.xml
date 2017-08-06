@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://wliu6v.github.io/"/>
-  <updated>2017-07-19T07:47:37.333Z</updated>
+  <updated>2017-08-06T13:58:51.301Z</updated>
   <id>http://wliu6v.github.io/</id>
   
   <author>
@@ -14,6 +14,53 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>【译】在 RecyclerView 中使用 DiffUtil</title>
+    <link href="http://wliu6v.github.io/2017/Use-DiffUtil-in-RecyclerView/"/>
+    <id>http://wliu6v.github.io/2017/Use-DiffUtil-in-RecyclerView/</id>
+    <published>2017-08-02T06:32:12.000Z</published>
+    <updated>2017-08-06T13:58:51.301Z</updated>
+    
+    <content type="html"><![CDATA[<p><a href="https://medium.com/@iammert/using-diffutil-in-android-recyclerview-bdca8e4fbb00" target="_blank" rel="external">原文：Using DiffUtil in Android RecyclerView</a></p>
+<blockquote>
+<p>使用 DiffUtil 从而避免使用 notifyDataSetChanged 更新 RecyclerView 中的数据</p>
+</blockquote>
+<a id="more"></a>
+<blockquote>
+<p>DiffUtil 是一个用来计算两个列表之间差别的工具类，它会输出一个将 list1 转化为 list2 的操作列表。这通常用来计算 RecyclerView Adapter 的更新逻辑</p>
+</blockquote>
+<p>很多时候我们的数据列表是完全变化的。我们会将新的列表赋值给 RecyclerView Adapter，并调用 notifyDataSetChanged 来更新 Adapter。但是 NotifyDataSetChanged 操作花销高昂， 而使用 DiffUtil 类就可以完美的解决这个问题。</p>
+<p>让我们创建一个用例。假设我们有一个人员列表，我们可以随机添加人员，然后按照年龄将其排序，并更新到 RecyclerView 中。</p>
+<p>我将用静态数据类使得示例代码尽量简洁：</p>
+<h2 id="DataProvider-java"><a href="#DataProvider-java" class="headerlink" title="DataProvider.java"></a>DataProvider.java</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DataProvider</span> </span>&#123;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> List&lt;Person&gt; <span class="title">getOldPersonList</span><span class="params">()</span></span>&#123;</div><div class="line">        List&lt;Person&gt; persons = <span class="keyword">new</span> ArrayList&lt;&gt;();</div><div class="line">        persons.add(<span class="keyword">new</span> Person(<span class="number">1</span>, <span class="number">20</span>, <span class="string">"John"</span>));</div><div class="line">        persons.add(<span class="keyword">new</span> Person(<span class="number">2</span>, <span class="number">12</span>, <span class="string">"Jack"</span>));</div><div class="line">        persons.add(<span class="keyword">new</span> Person(<span class="number">3</span>, <span class="number">8</span>, <span class="string">"Michael"</span>));</div><div class="line">        persons.add(<span class="keyword">new</span> Person(<span class="number">4</span>, <span class="number">19</span>, <span class="string">"Rafael"</span>));</div><div class="line">        <span class="keyword">return</span> persons;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> List&lt;Person&gt; <span class="title">sortByAge</span><span class="params">(List&lt;Person&gt; oldList)</span></span>&#123;</div><div class="line">        Collections.sort(oldList, <span class="keyword">new</span> Comparator&lt;Person&gt;() &#123;</div><div class="line">            <span class="meta">@Override</span></div><div class="line">            <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">compare</span><span class="params">(Person person, Person person2)</span> </span>&#123;</div><div class="line">                <span class="keyword">return</span> person.age - person2.age;</div><div class="line">            &#125;</div><div class="line">        &#125;);</div><div class="line">        <span class="keyword">return</span> oldList;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>现在我们的主角登场了。DiffUtil.Callback 是一个抽象类，它有 4 个抽象方法和 1 个非抽象方法。接下来让我们简单介绍一下。</p>
+<h2 id="DiffUtil-Callback方法"><a href="#DiffUtil-Callback方法" class="headerlink" title="DiffUtil.Callback方法"></a>DiffUtil.Callback方法</h2><ul>
+<li><code>getOldListSize()</code> : 返回旧列表的大小;</li>
+<li><code>getNewListSize()</code> : 返回新列表的大小;</li>
+<li><code>areItemsTheSame(int oldItemPosition, int newItemPosition)</code> : DiffUtil 使用这个方法来判断两个对象是否表示相同的 Item。如果 Item 有唯一 ID ，那么该方法应使用 ID 判断这些 Item 是否相同。【译者注：此处返回值将控制 Item Added/Moved/Removed 等行为】</li>
+<li><code>areContentsTheSame(int oldItemPosition, int newItemPosition)</code> : 检查两个项目是否具有相同的数据。您可以根据您的 UI 更改其行为。只有当 <code>areItemsTheSame</code> 返回 true 时，此方法才被 DiffUtil 调用。【译者注：此处返回 false 将触发 Item Changed 行为】</li>
+<li><code>getChangePayload(int oldItemPosition, int newItemPosition)</code> : 当 areItemTheSame 返回 true 并且 isContentsTheSame 返回 false 时，DiffUtil 调用此方法以获取有关该更改的有效负载。在当前的实例中并没有使用 payload object。但是你可以通过<a href="https://proandroiddev.com/diffutil-is-a-must-797502bc1149" target="_blank" rel="external">这个示例</a>进行尝试。</li>
+</ul>
+<h2 id="MyDiffUtilCallback-java"><a href="#MyDiffUtilCallback-java" class="headerlink" title="MyDiffUtilCallback.java"></a>MyDiffUtilCallback.java</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyDiffCallback</span> <span class="keyword">extends</span> <span class="title">DiffUtil</span>.<span class="title">Callback</span></span>&#123;</div><div class="line"></div><div class="line">    List&lt;Person&gt; oldPersons;</div><div class="line">    List&lt;Person&gt; newPersons;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">MyDiffCallback</span><span class="params">(List&lt;Person&gt; newPersons, List&lt;Person&gt; oldPersons)</span> </span>&#123;</div><div class="line">        <span class="keyword">this</span>.newPersons = newPersons;</div><div class="line">        <span class="keyword">this</span>.oldPersons = oldPersons;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getOldListSize</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> oldPersons.size();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getNewListSize</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> newPersons.size();</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">areItemsTheSame</span><span class="params">(<span class="keyword">int</span> oldItemPosition, <span class="keyword">int</span> newItemPosition)</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> oldPersons.get(oldItemPosition).id == newPersons.get(newItemPosition).id;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">areContentsTheSame</span><span class="params">(<span class="keyword">int</span> oldItemPosition, <span class="keyword">int</span> newItemPosition)</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> oldPersons.get(oldItemPosition).equals(newPersons.get(newItemPosition));</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Nullable</span></div><div class="line">    <span class="meta">@Override</span></div><div class="line">    <span class="function"><span class="keyword">public</span> Object <span class="title">getChangePayload</span><span class="params">(<span class="keyword">int</span> oldItemPosition, <span class="keyword">int</span> newItemPosition)</span> </span>&#123;</div><div class="line">        <span class="comment">//you can return particular field for changed item.</span></div><div class="line">        <span class="keyword">return</span> <span class="keyword">super</span>.getChangePayload(oldItemPosition, newItemPosition);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>RecyclerViewAdapter 的更新方法<br><figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">updateList</span><span class="params">(ArrayList&lt;Person&gt; newList)</span> </span>&#123;</div><div class="line">    DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(<span class="keyword">new</span> MyDiffCallback(<span class="keyword">this</span>.persons, newList));</div><div class="line">    diffResult.dispatchUpdatesTo(<span class="keyword">this</span>);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>以上。我们调用 dispactUpdatesTo(RecyclerView.Adapter) 方法，在 Adapter 中执行对应的更改。</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://developer.android.com/reference/android/support/v7/util/DiffUtil.html" target="_blank" rel="external">https://developer.android.com/reference/android/support/v7/util/DiffUtil.html</a><br><a href="https://medium.com/@nullthemall/diffutil-is-a-must-797502bc1149#.x7kc55a69" target="_blank" rel="external">https://medium.com/@nullthemall/diffutil-is-a-must-797502bc1149#.x7kc55a69</a></p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;&lt;a href=&quot;https://medium.com/@iammert/using-diffutil-in-android-recyclerview-bdca8e4fbb00&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;原文：Using DiffUtil in Android RecyclerView&lt;/a&gt;&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;使用 DiffUtil 从而避免使用 notifyDataSetChanged 更新 RecyclerView 中的数据&lt;/p&gt;
+&lt;/blockquote&gt;
+    
+    </summary>
+    
+    
+      <category term="Android" scheme="http://wliu6v.github.io/tags/Android/"/>
+    
+  </entry>
   
   <entry>
     <title>一些 Elasticsearch 知识点</title>
@@ -1096,31 +1143,6 @@ mGalleryView.setOnScrollListener(new AbsListView.OnScrollListener() {
     
     
       <category term="Tips" scheme="http://wliu6v.github.io/tags/Tips/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>onmeasure crashed</title>
-    <link href="http://wliu6v.github.io/2014/onmeasure-crashed/"/>
-    <id>http://wliu6v.github.io/2014/onmeasure-crashed/</id>
-    <published>2014-08-11T16:30:24.000Z</published>
-    <updated>2014-08-11T08:33:46.501Z</updated>
-    
-    <content type="html"><![CDATA[<p>RelativeLayout 在 Android 4.1.1 及其之前版本执行 measure 有时会 crash。</p>
-<p>可尝试在 inflate 的时候指定其 parentView 参数。</p>
-<p>详见 <a href="http://blog.csdn.net/wangfei584521/article/details/25987377" target="_blank" rel="external">http://blog.csdn.net/wangfei584521/article/details/25987377</a> 中的 solution 1</p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;RelativeLayout 在 Android 4.1.1 及其之前版本执行 measure 有时会 crash。&lt;/p&gt;
-&lt;p&gt;可尝试在 inflate 的时候指定其 parentView 参数。&lt;/p&gt;
-&lt;p&gt;详见 &lt;a href=&quot;http://blog.csdn.
-    
-    </summary>
-    
-    
-      <category term="Android" scheme="http://wliu6v.github.io/tags/Android/"/>
     
   </entry>
   
