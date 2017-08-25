@@ -67,7 +67,7 @@
     <link href="http://wliu6v.github.io/2017/elasticsearch-note/"/>
     <id>http://wliu6v.github.io/2017/elasticsearch-note/</id>
     <published>2017-07-02T04:56:43.000Z</published>
-    <updated>2017-07-19T07:47:37.333Z</updated>
+    <updated>2017-08-17T06:09:20.644Z</updated>
     
     <content type="html"><![CDATA[<blockquote>
 <p>本文面向的环境是 ElasticSearch 5 系列版本。列一些在应用中碰到的知识点以便于查阅</p>
@@ -137,6 +137,7 @@
 <p>需要注意，一旦重新分配，集群将会自动将状态平衡到均匀状态。比如说，如果将一个分片从 node1 移动到 node2，那么 es 为了保持均匀状态，会自动的将另一个分片从 node2 移到 node1。</p>
 <p>可以将集群设置为禁止分配（disable allocations），那么就只能执行显示分配。</p>
 <p>当时使用 reroute 命令是为了解决这样的问题：某个 node 挂了之后，上面的 shard 变成 Unassigned 状态了。等该 node 重新启动之后，shard 不知道为什么一直无法从 Unassigned 重新移到该 node 上，因此需要使用 allocate_replica 命令进行 reroute，手动将其移过去。猜测可能是 node 挂了之后，产生了一些 lock 文件阻碍了自动的 allocate，正确方式大概是删掉那些 lock 文件然后就可以自动 allocate 了。不过看上去手动执行 reroute 也可以达到效果。</p>
+<p>Updated@17.08.17 : 当 shard 过大的时候，重新分配之后往往会是 yellow 状态。通过 <code>GET _cat/shards</code> 命令可以查看当前各个 shard 的状态，如果能看到其状态是 INITIALIZING 且可预知其 size 很大的话，是需要等待很长时间的。我碰到这个问题的时候，是一个 300+G 的索引，每个 shard 上有 60G 上下的内容，启动了四个多小时。可想而知这个启动时间跟机器性能也有关系。</p>
 ]]></content>
     
     <summary type="html">
@@ -198,7 +199,7 @@
     <link href="http://wliu6v.github.io/2017/Android-RTL-Support/"/>
     <id>http://wliu6v.github.io/2017/Android-RTL-Support/</id>
     <published>2017-02-25T05:41:18.000Z</published>
-    <updated>2017-02-25T07:19:53.804Z</updated>
+    <updated>2017-08-25T08:06:46.327Z</updated>
     
     <content type="html"><![CDATA[<p>对于一款面向全球用户的 Android 应用来说，进行本地化处理是十分重要的。关于本地化涉及的全部内容，可以参考 <a href="https://developer.android.com/distribute/tools/localization-checklist.html" target="_blank" rel="external">Google Developer - Localization Checklist</a> 。这里只介绍 RTL 布局中涉及的部分内容。</p>
 <h2 id="什么是-RTL-布局"><a href="#什么是-RTL-布局" class="headerlink" title="什么是 RTL 布局"></a>什么是 RTL 布局</h2><p>我们平常都是以从左到右（Left-to-Right，LTR）的方向显示文本，但是对于阿拉伯语、希伯来语等语言，他们的文字是从右向左排列的，称为 Right-to-Left 布局，简称为 RTL。当我们处理 RTL 语言的时候，需要特别注意的一点是：在 RTL 语言中，并非仅有文本框的内容需要从右到左排列，而是整个页面的内容都要镜像过来，才符合 RTL 用户的使用习惯。</p>
@@ -227,8 +228,8 @@
 <p>答案如下图左方所示，LTR 语言会在文本框中居左显示，RTL 则居右，导致内容一左一右，非常难看。而将 width 改为 wrap_content 后则会如下右图样式，尽管控件内的文字显示顺序遵循了 LTR，但控件本身仍然会受到系统整体 RTL 的控制贴紧右侧。</p>
 <p><img src="/img/RTL-Support-textview-width.png" alt="TextView 的 layout_width 属性会在 LTR 与 RTL 混排情况下影响显示"></p>
 <p>至于如何在应用内找到使用了 match_parent 作为宽度属性的 TextView，我们可以通过 Android Studio 的 find in path 功能进行查找。通过构造正则表达式，将其全部列举出来并不难。问题在于不能全局统一的进行替换，而是要每个地方单独考察并尝试替换。如果页面需求的确需要 match_parent 作为宽度那也就没办法了。</p>
+<p>我在 find in path 时候使用的表达式，不一定准确： <code>&lt;TextView[^&gt;]*?android:layout_width=&quot;(match_parent|fill_parent)&quot;[^&gt;]*?/&gt;</code> 。 需要反选 Case sensitive，勾选 Regular expression，上下文为 anywhere。</p>
 <hr>
-<p>以上是为一个现有的 Android 应用添加 RTL 支持的主要步骤。目前本人也在处理 RTL 相关内容，之后一个月内有新的发现会陆续更新上来。</p>
 <h2 id="参考内容"><a href="#参考内容" class="headerlink" title="参考内容"></a>参考内容</h2><p>同文中链接内容</p>
 ]]></content>
     

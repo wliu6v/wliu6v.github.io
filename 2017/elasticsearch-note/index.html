@@ -97,7 +97,7 @@
 <meta property="og:url" content="http://wliu6v.github.io/2017/elasticsearch-note/index.html">
 <meta property="og:site_name" content="6v&#39;s blog">
 <meta property="og:description" content="本文面向的环境是 ElasticSearch 5 系列版本。列一些在应用中碰到的知识点以便于查阅">
-<meta property="og:updated_time" content="2017-07-19T07:47:37.333Z">
+<meta property="og:updated_time" content="2017-08-17T06:09:20.644Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="一些 Elasticsearch 知识点">
 <meta name="twitter:description" content="本文面向的环境是 ElasticSearch 5 系列版本。列一些在应用中碰到的知识点以便于查阅">
@@ -407,6 +407,7 @@
 <p>需要注意，一旦重新分配，集群将会自动将状态平衡到均匀状态。比如说，如果将一个分片从 node1 移动到 node2，那么 es 为了保持均匀状态，会自动的将另一个分片从 node2 移到 node1。</p>
 <p>可以将集群设置为禁止分配（disable allocations），那么就只能执行显示分配。</p>
 <p>当时使用 reroute 命令是为了解决这样的问题：某个 node 挂了之后，上面的 shard 变成 Unassigned 状态了。等该 node 重新启动之后，shard 不知道为什么一直无法从 Unassigned 重新移到该 node 上，因此需要使用 allocate_replica 命令进行 reroute，手动将其移过去。猜测可能是 node 挂了之后，产生了一些 lock 文件阻碍了自动的 allocate，正确方式大概是删掉那些 lock 文件然后就可以自动 allocate 了。不过看上去手动执行 reroute 也可以达到效果。</p>
+<p>Updated@17.08.17 : 当 shard 过大的时候，重新分配之后往往会是 yellow 状态。通过 <code>GET _cat/shards</code> 命令可以查看当前各个 shard 的状态，如果能看到其状态是 INITIALIZING 且可预知其 size 很大的话，是需要等待很长时间的。我碰到这个问题的时候，是一个 300+G 的索引，每个 shard 上有 60G 上下的内容，启动了四个多小时。可想而知这个启动时间跟机器性能也有关系。</p>
 
       
     </div>

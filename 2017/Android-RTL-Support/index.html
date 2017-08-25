@@ -100,7 +100,7 @@
 <meta property="og:image" content="http://wliu6v.github.io/img/RTL-Support-iOS-ar-vs-cn.png">
 <meta property="og:image" content="http://wliu6v.github.io/img/RTL-Support-refactorInAs.png">
 <meta property="og:image" content="http://wliu6v.github.io/img/RTL-Support-textview-width.png">
-<meta property="og:updated_time" content="2017-02-25T07:19:53.804Z">
+<meta property="og:updated_time" content="2017-08-25T08:06:46.327Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="为 Android 应用添加 RTL 语言支持">
 <meta name="twitter:description" content="对于一款面向全球用户的 Android 应用来说，进行本地化处理是十分重要的。关于本地化涉及的全部内容，可以参考 Google Developer - Localization Checklist 。这里只介绍 RTL 布局中涉及的部分内容。 什么是 RTL 布局我们平常都是以从左到右（Left-to-Right，LTR）的方向显示文本，但是对于阿拉伯语、希伯来语等语言，他们的文字是从右向左排列的">
@@ -370,8 +370,8 @@
 <p>答案如下图左方所示，LTR 语言会在文本框中居左显示，RTL 则居右，导致内容一左一右，非常难看。而将 width 改为 wrap_content 后则会如下右图样式，尽管控件内的文字显示顺序遵循了 LTR，但控件本身仍然会受到系统整体 RTL 的控制贴紧右侧。</p>
 <p><img src="/img/RTL-Support-textview-width.png" alt="TextView 的 layout_width 属性会在 LTR 与 RTL 混排情况下影响显示"></p>
 <p>至于如何在应用内找到使用了 match_parent 作为宽度属性的 TextView，我们可以通过 Android Studio 的 find in path 功能进行查找。通过构造正则表达式，将其全部列举出来并不难。问题在于不能全局统一的进行替换，而是要每个地方单独考察并尝试替换。如果页面需求的确需要 match_parent 作为宽度那也就没办法了。</p>
+<p>我在 find in path 时候使用的表达式，不一定准确： <code>&lt;TextView[^&gt;]*?android:layout_width=&quot;(match_parent|fill_parent)&quot;[^&gt;]*?/&gt;</code> 。 需要反选 Case sensitive，勾选 Regular expression，上下文为 anywhere。</p>
 <hr>
-<p>以上是为一个现有的 Android 应用添加 RTL 支持的主要步骤。目前本人也在处理 RTL 相关内容，之后一个月内有新的发现会陆续更新上来。</p>
 <h2 id="参考内容"><a href="#参考内容" class="headerlink" title="参考内容"></a>参考内容</h2><p>同文中链接内容</p>
 
       
