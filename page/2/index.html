@@ -342,10 +342,7 @@
 
       
         
-          
-          要为 ActionBar 上的 SearchView 的 EditText 设置 onClickListener，可以考虑通过递归的方式为 SearchView 的所有子 View / ViewGroup 设置 onClickListener。代码如下：
-123456789101112131415161718public static void setOnClickListenerForViewGroup(View v, View.OnClickListener listener) &#123;	if (v instanceof ViewGroup) &#123;		ViewGroup group = (ViewGroup)v;		int count = group.getChildCoun
-          ...
+          <p>要为 ActionBar 上的 SearchView 的 EditText 设置 onClickListener，可以考虑通过递归的方式为 SearchView 的所有子 View / ViewGroup 设置 onClickListener。代码如下：</p>
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2015/Set-onClickListener-for-EditText-in-ActionBar-s-SearchView/" rel="contents">
@@ -472,11 +469,8 @@
 
       
         
-          
-          当 ListPreference 中执行 getSummary 的时候碰到了字符 ‘%’ 时会导致应用 crash。
-解决方式重写 ListPreference 的 getSummary 方法，避免在遇到 ‘%’ 的时候 crash。
-12345678910111213141516171819202122232425262728293031323334	private class NoneFormatSummaryListPreference extends ListPreference &#123;		public NoneFormatSummaryListPreference(Context context) &#123;			super(context);		&#125;		@Over
-          ...
+          <p>当 ListPreference 中执行 getSummary 的时候碰到了字符 ‘%’ 时会导致应用 crash。</p>
+<h3 id="解决方式"><a href="#解决方式" class="headerlink" title="解决方式"></a>解决方式</h3><p>重写 ListPreference 的 getSummary 方法，避免在遇到 ‘%’ 的时候 crash。</p>
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2015/Preference-Crash-When-getSummary-Contains/" rel="contents">

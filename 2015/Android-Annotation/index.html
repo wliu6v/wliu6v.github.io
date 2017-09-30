@@ -90,17 +90,17 @@
 
 
 
-<meta name="description" content="IntDef通过 @IntDef 标注可以限定一个方法的输入输出内容。 枚举类型可以很好的限定值的范围，但是据说（没自己验证过- -）是有性能问题。在很多情况下，可以通过自定义的 @IntDef 和 @StringDef 来替代枚举类型。而且用起来也比在枚举类型里面实现 valueOf 等方法要简洁少许。 1234567891011121314151617181920public class Ic">
+<meta name="description" content="IntDef通过 @IntDef 标注可以限定一个方法的输入输出内容。 枚举类型可以很好的限定值的范围，但是有性能问题（Enum 的性能问题在 Android Developer 中有提到，在 胡凯 - Android性能优化典范 - 第3季 中的第4小节中有详细解释）。在很多情况下，可以通过自定义的 @IntDef 和 @StringDef 来替代枚举类型。而且用起来也比在枚举类型里面实现 va">
 <meta name="keywords" content="Android">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Android Annotation">
 <meta property="og:url" content="http://wliu6v.github.io/2015/Android-Annotation/index.html">
 <meta property="og:site_name" content="6v&#39;s blog">
-<meta property="og:description" content="IntDef通过 @IntDef 标注可以限定一个方法的输入输出内容。 枚举类型可以很好的限定值的范围，但是据说（没自己验证过- -）是有性能问题。在很多情况下，可以通过自定义的 @IntDef 和 @StringDef 来替代枚举类型。而且用起来也比在枚举类型里面实现 valueOf 等方法要简洁少许。 1234567891011121314151617181920public class Ic">
-<meta property="og:updated_time" content="2016-05-28T01:59:21.133Z">
+<meta property="og:description" content="IntDef通过 @IntDef 标注可以限定一个方法的输入输出内容。 枚举类型可以很好的限定值的范围，但是有性能问题（Enum 的性能问题在 Android Developer 中有提到，在 胡凯 - Android性能优化典范 - 第3季 中的第4小节中有详细解释）。在很多情况下，可以通过自定义的 @IntDef 和 @StringDef 来替代枚举类型。而且用起来也比在枚举类型里面实现 va">
+<meta property="og:updated_time" content="2017-09-30T07:36:03.459Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Android Annotation">
-<meta name="twitter:description" content="IntDef通过 @IntDef 标注可以限定一个方法的输入输出内容。 枚举类型可以很好的限定值的范围，但是据说（没自己验证过- -）是有性能问题。在很多情况下，可以通过自定义的 @IntDef 和 @StringDef 来替代枚举类型。而且用起来也比在枚举类型里面实现 valueOf 等方法要简洁少许。 1234567891011121314151617181920public class Ic">
+<meta name="twitter:description" content="IntDef通过 @IntDef 标注可以限定一个方法的输入输出内容。 枚举类型可以很好的限定值的范围，但是有性能问题（Enum 的性能问题在 Android Developer 中有提到，在 胡凯 - Android性能优化典范 - 第3季 中的第4小节中有详细解释）。在很多情况下，可以通过自定义的 @IntDef 和 @StringDef 来替代枚举类型。而且用起来也比在枚举类型里面实现 va">
 
 
 
@@ -340,7 +340,8 @@
 
       
         <h2 id="IntDef"><a href="#IntDef" class="headerlink" title="IntDef"></a>IntDef</h2><p>通过 <code>@IntDef</code> 标注可以限定一个方法的输入输出内容。</p>
-<p>枚举类型可以很好的限定值的范围，但是据说（没自己验证过- -）是有性能问题。在很多情况下，可以通过自定义的 <code>@IntDef</code> 和 <code>@StringDef</code> 来替代枚举类型。而且用起来也比在枚举类型里面实现 valueOf 等方法要简洁少许。</p>
+<p>枚举类型可以很好的限定值的范围，但是有性能问题（Enum 的性能问题在 <a href="https://developer.android.com/topic/performance/memory.html#Abstractions" target="_blank" rel="external">Android Developer</a> 中有提到，在 <a href="http://hukai.me/android-performance-patterns-season-3/" target="_blank" rel="external">胡凯 - Android性能优化典范 - 第3季</a> 中的第4小节中有详细解释）。在很多情况下，可以通过自定义的 <code>@IntDef</code> 和 <code>@StringDef</code> 来替代枚举类型。而且用起来也比在枚举类型里面实现 valueOf 等方法要简洁少许。</p>
+<a id="more"></a>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">IceCreamFlavourManager</span> </span>&#123;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">int</span> flavour;</div><div class="line"></div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> VANILLA = <span class="number">0</span>;</div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> CHOCOLATE = <span class="number">1</span>;</div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> STRAWBERRY = <span class="number">2</span>;</div><div class="line"></div><div class="line">    <span class="meta">@IntDef</span>(&#123;VANILLA, CHOCOLATE, STRAWBERRY&#125;)</div><div class="line">    <span class="keyword">public</span> <span class="meta">@interface</span> Flavour &#123;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="meta">@Flavour</span></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">getFlavour</span><span class="params">()</span> </span>&#123;</div><div class="line">        <span class="keyword">return</span> flavour;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setFlavour</span><span class="params">(@Flavour <span class="keyword">int</span> flavour)</span> </span>&#123;</div><div class="line">        <span class="keyword">this</span>.flavour = flavour;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
       
     </div>
