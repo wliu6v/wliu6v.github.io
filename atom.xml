@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://wliu6v.github.io/"/>
-  <updated>2017-10-19T12:32:08.244Z</updated>
+  <updated>2017-10-19T12:38:50.117Z</updated>
   <id>http://wliu6v.github.io/</id>
   
   <author>
@@ -20,7 +20,7 @@
     <link href="http://wliu6v.github.io/2017/EmojiEditText-override-inputtype/"/>
     <id>http://wliu6v.github.io/2017/EmojiEditText-override-inputtype/</id>
     <published>2017-10-18T06:58:47.000Z</published>
-    <updated>2017-10-19T12:32:08.244Z</updated>
+    <updated>2017-10-19T12:38:50.117Z</updated>
     
     <content type="html"><![CDATA[<p>最近项目中引入了 support 26 中的 EmojiEditText (<code>com.android.support:support-emoji:26.1.0</code>)，我们自定义的 BaseEditText 也继承了 EmojiEditText。后来突然发现，在使用原生键盘输入密码的时候会出现单词联想提示了。而按理说，在 xml 里面设置了 <code>inputType=&quot;textPassword&quot;</code> 的话，是不应该有联想提示的。</p>
 <a id="more"></a>
@@ -33,7 +33,7 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">Log.d(<span class="string">"6v"</span>, <span class="string">"InputType="</span> + tv.getInputType()); <span class="comment">// inputType=129</span></div><div class="line">tv.setKeyListener(tv.getKeyListener());</div><div class="line">Log.d(<span class="string">"6v"</span>, <span class="string">"InputType="</span> + tv.getInputType()); <span class="comment">// inputType=1</span></div></pre></td></tr></table></figure>
 <p>可以看到即使什么也不做，只是简单地执行一下 <code>setKeyListener()</code> ，也会导致 inputType 被重置。因为 TextView 会在 <code>setKeyListener()</code> 方法中会将 TextView 自身的 inputType 设置为 keyListener 的 inputType。相关代码如下：</p>
 <p><img src="/img/Emoji-Et-Keylistener.png" alt="Emoji setKeyListener 相关代码"></p>
-<p>而继续往下追踪，我们不难发现，在 TextView 初始化过程中，会根据 inputType 去生成不同类型的 KeyListener：TextKeyListener, DigitsKeyListener, DateKeyListener 等等。在 TextKeyListener 中还会根据 <strong>是否存在大写限制</strong> 与 <strong>是否自动纠正</strong> 产生不同的细分，然而 <strong>是否为密码</strong> 并不在考虑范围内。因此无论是 textPassword 还是默认的 inputType，都会产生同一个 textKeyListener （inputType=1） 。在正常使用中，这里的处理没什么问题。但如果我们重新执行了 <code>setKeyListener()</code>，就会导致 TextView 的 inputType 被覆盖为 1，使得谷歌原生键盘产生了单词联想。</p>
+<p>而继续往下追踪，我们不难发现，在 TextView 初始化过程中，会根据 inputType 去生成不同类型的 KeyListener：TextKeyListener, DigitsKeyListener, DateKeyListener 等等，通过这些不同类型的 KeyListener 去限制用户输入的内容。在 TextKeyListener 中还会根据 <strong>是否存在大写限制</strong> 与 <strong>是否自动纠正</strong> 产生不同的细分，然而 <strong>是否为密码</strong> 并不在考虑范围内。因此无论是 textPassword 还是默认的 inputType，都会产生同一个类型的 textKeyListener （inputType=1） 。在正常使用中，这里的处理没什么问题。但如果我们重新执行了 <code>setKeyListener()</code>，就会导致 TextView 的 inputType 被覆盖为 1，使得谷歌原生键盘产生了单词联想。</p>
 <p>因此，如果要解决这个 Bug，只能引入 EmojiEditText 的源码，修改其 init 逻辑，在执行 <code>setKeyListener()</code> 之前先保存一下 <code>TextView.getInputType()</code> 的值，然后 <code>setKeyListener()</code> 之后再重新 <code>setInputType()</code>。</p>
 <p>然而这么做实在是太复杂，所以最后的解决方案只是简单地将所有存在 <code>inputType=&quot;textPassword&quot;</code> 的地方改成了 EditText （而不是原来的自定义基类 EditText）。</p>
 ]]></content>
@@ -548,9 +548,9 @@ private static final int MAX_EXECUTE_RESULTS = 250;
     </summary>
     
     
-      <category term="Windows" scheme="http://wliu6v.github.io/tags/Windows/"/>
-    
       <category term="Android" scheme="http://wliu6v.github.io/tags/Android/"/>
+    
+      <category term="Windows" scheme="http://wliu6v.github.io/tags/Windows/"/>
     
   </entry>
   
