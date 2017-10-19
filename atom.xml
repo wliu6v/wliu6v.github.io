@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://wliu6v.github.io/"/>
-  <updated>2017-08-06T13:58:51.301Z</updated>
+  <updated>2017-10-19T12:32:08.244Z</updated>
   <id>http://wliu6v.github.io/</id>
   
   <author>
@@ -14,6 +14,40 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>EmojiEditText 控件会覆盖 XML 中定义的 inputType 属性</title>
+    <link href="http://wliu6v.github.io/2017/EmojiEditText-override-inputtype/"/>
+    <id>http://wliu6v.github.io/2017/EmojiEditText-override-inputtype/</id>
+    <published>2017-10-18T06:58:47.000Z</published>
+    <updated>2017-10-19T12:32:08.244Z</updated>
+    
+    <content type="html"><![CDATA[<p>最近项目中引入了 support 26 中的 EmojiEditText (<code>com.android.support:support-emoji:26.1.0</code>)，我们自定义的 BaseEditText 也继承了 EmojiEditText。后来突然发现，在使用原生键盘输入密码的时候会出现单词联想提示了。而按理说，在 xml 里面设置了 <code>inputType=&quot;textPassword&quot;</code> 的话，是不应该有联想提示的。</p>
+<a id="more"></a>
+<p><img src="/img/Emoji-Et-demo.png" alt="正常的密码输入键盘与使用了 EmojiEditText 之后的密码键盘区别"></p>
+<p><em>只有左图是正常的，中图和右图都使用了 EmojiEditText，可以看到无论是否添加 textNoSuggestion，结果都是错误的</em></p>
+<p>经排查后发现，只有 EmojiEditText 会存在该问题，如果直接使用原生的 EditText 则正常。</p>
+<p>当我们设置 textPassword 之后，EditText.getInputType() 的值是 129。然而 EmojiTextView 会在 init 过程中执行一句 <code>setKeyListener(super.getKeyListener)</code> （如下图），这行代码会导致 EditText 的 inputType 变为 1。</p>
+<p><img src="/img/Emoji-Et-init.png" alt="EmojiEditText init 方法中导致 inputType 出错的语句"></p>
+<p>EmojiEditText 虽然重写了 <code>setKeyListener()</code> 方法，但是其内部实现与父类相比并没有什么特别的。我们可以创建一个正常的 TextView，设置其 inputType=”textPassword” ，然后执行下列语句：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">Log.d(<span class="string">"6v"</span>, <span class="string">"InputType="</span> + tv.getInputType()); <span class="comment">// inputType=129</span></div><div class="line">tv.setKeyListener(tv.getKeyListener());</div><div class="line">Log.d(<span class="string">"6v"</span>, <span class="string">"InputType="</span> + tv.getInputType()); <span class="comment">// inputType=1</span></div></pre></td></tr></table></figure>
+<p>可以看到即使什么也不做，只是简单地执行一下 <code>setKeyListener()</code> ，也会导致 inputType 被重置。因为 TextView 会在 <code>setKeyListener()</code> 方法中会将 TextView 自身的 inputType 设置为 keyListener 的 inputType。相关代码如下：</p>
+<p><img src="/img/Emoji-Et-Keylistener.png" alt="Emoji setKeyListener 相关代码"></p>
+<p>而继续往下追踪，我们不难发现，在 TextView 初始化过程中，会根据 inputType 去生成不同类型的 KeyListener：TextKeyListener, DigitsKeyListener, DateKeyListener 等等。在 TextKeyListener 中还会根据 <strong>是否存在大写限制</strong> 与 <strong>是否自动纠正</strong> 产生不同的细分，然而 <strong>是否为密码</strong> 并不在考虑范围内。因此无论是 textPassword 还是默认的 inputType，都会产生同一个 textKeyListener （inputType=1） 。在正常使用中，这里的处理没什么问题。但如果我们重新执行了 <code>setKeyListener()</code>，就会导致 TextView 的 inputType 被覆盖为 1，使得谷歌原生键盘产生了单词联想。</p>
+<p>因此，如果要解决这个 Bug，只能引入 EmojiEditText 的源码，修改其 init 逻辑，在执行 <code>setKeyListener()</code> 之前先保存一下 <code>TextView.getInputType()</code> 的值，然后 <code>setKeyListener()</code> 之后再重新 <code>setInputType()</code>。</p>
+<p>然而这么做实在是太复杂，所以最后的解决方案只是简单地将所有存在 <code>inputType=&quot;textPassword&quot;</code> 的地方改成了 EditText （而不是原来的自定义基类 EditText）。</p>
+]]></content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;最近项目中引入了 support 26 中的 EmojiEditText (&lt;code&gt;com.android.support:support-emoji:26.1.0&lt;/code&gt;)，我们自定义的 BaseEditText 也继承了 EmojiEditText。后来突然发现，在使用原生键盘输入密码的时候会出现单词联想提示了。而按理说，在 xml 里面设置了 &lt;code&gt;inputType=&amp;quot;textPassword&amp;quot;&lt;/code&gt; 的话，是不应该有联想提示的。&lt;/p&gt;
+    
+    </summary>
+    
+    
+      <category term="Android" scheme="http://wliu6v.github.io/tags/Android/"/>
+    
+  </entry>
   
   <entry>
     <title>【译】在 RecyclerView 中使用 DiffUtil</title>
@@ -199,7 +233,7 @@
     <link href="http://wliu6v.github.io/2017/Android-RTL-Support/"/>
     <id>http://wliu6v.github.io/2017/Android-RTL-Support/</id>
     <published>2017-02-25T05:41:18.000Z</published>
-    <updated>2017-08-25T08:06:46.327Z</updated>
+    <updated>2017-10-19T12:32:09.956Z</updated>
     
     <content type="html"><![CDATA[<p>对于一款面向全球用户的 Android 应用来说，进行本地化处理是十分重要的。关于本地化涉及的全部内容，可以参考 <a href="https://developer.android.com/distribute/tools/localization-checklist.html" target="_blank" rel="external">Google Developer - Localization Checklist</a> 。这里只介绍 RTL 布局中涉及的部分内容。</p>
 <h2 id="什么是-RTL-布局"><a href="#什么是-RTL-布局" class="headerlink" title="什么是 RTL 布局"></a>什么是 RTL 布局</h2><p>我们平常都是以从左到右（Left-to-Right，LTR）的方向显示文本，但是对于阿拉伯语、希伯来语等语言，他们的文字是从右向左排列的，称为 Right-to-Left 布局，简称为 RTL。当我们处理 RTL 语言的时候，需要特别注意的一点是：在 RTL 语言中，并非仅有文本框的内容需要从右到左排列，而是整个页面的内容都要镜像过来，才符合 RTL 用户的使用习惯。</p>
@@ -1130,30 +1164,6 @@ mGalleryView.setOnScrollListener(new AbsListView.OnScrollListener() {
     
     
       <category term="Android" scheme="http://wliu6v.github.io/tags/Android/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Tips</title>
-    <link href="http://wliu6v.github.io/2014/Memo/"/>
-    <id>http://wliu6v.github.io/2014/Memo/</id>
-    <published>2014-08-16T12:34:43.000Z</published>
-    <updated>2016-05-28T01:58:58.398Z</updated>
-    
-    <content type="html"><![CDATA[<h1 id="Windows7-与-Ubuntu-双系统安装"><a href="#Windows7-与-Ubuntu-双系统安装" class="headerlink" title="Windows7 与 Ubuntu 双系统安装"></a>Windows7 与 Ubuntu 双系统安装</h1><p><a href="http://bbs.pcbeta.com/viewthread-1046663-1-1.html" target="_blank" rel="external">http://bbs.pcbeta.com/viewthread-1046663-1-1.html</a><br><a href="http://blog.csdn.net/lvanneo/article/details/16885121" target="_blank" rel="external">http://blog.csdn.net/lvanneo/article/details/16885121</a></p>
-<h1 id="在-Ubuntu-上安装搜狗输入法"><a href="#在-Ubuntu-上安装搜狗输入法" class="headerlink" title="在 Ubuntu 上安装搜狗输入法"></a>在 Ubuntu 上安装搜狗输入法</h1><p>首先尝试官网的安装，如果不行的话，需要切换输入法设置。方法是输入 im-config，然后选择 ok - yes - fcitx 。然后重启。</p>
-<p><a href="http://www.2cto.com/os/201405/305463.html" target="_blank" rel="external">http://www.2cto.com/os/201405/305463.html</a></p>
-<h1 id="aapt-exception"><a href="#aapt-exception" class="headerlink" title="aapt exception"></a>aapt exception</h1><p><a href="http://askubuntu.com/questions/147400/problems-with-eclipse-and-android-sdk" target="_blank" rel="external">http://askubuntu.com/questions/147400/problems-with-eclipse-and-android-sdk</a></p>
-]]></content>
-    
-    <summary type="html">
-    
-      &lt;h1 id=&quot;Windows7-与-Ubuntu-双系统安装&quot;&gt;&lt;a href=&quot;#Windows7-与-Ubuntu-双系统安装&quot; class=&quot;headerlink&quot; title=&quot;Windows7 与 Ubuntu 双系统安装&quot;&gt;&lt;/a&gt;Windows7 与 Ubuntu
-    
-    </summary>
-    
-    
-      <category term="Tips" scheme="http://wliu6v.github.io/tags/Tips/"/>
     
   </entry>
   

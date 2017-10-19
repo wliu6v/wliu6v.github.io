@@ -90,17 +90,21 @@
 
 
 
-<meta name="description" content="在使用 DFP Ads 的时候，官方文档中会要求开发人员在测试广告的过程中必须使用测试广告 ID，并需要将测试的设备在代码中添加为测试设备才可以正常使用。但添加的过程有些麻烦：我们需要将测试设备连接至电脑，启动应用拉取广告，同时观察 logcat 中的日志，抓取到形如 ... addTestDevice(&amp;quot;123456789ABCDEF0123456789ABCDEF0&amp;quot;) .">
+<meta name="description" content="最近项目中引入了 support 26 中的 EmojiEditText (com.android.support:support-emoji:26.1.0)，我们自定义的 BaseEditText 也继承了 EmojiEditText。后来突然发现，在使用原生键盘输入密码的时候会出现单词联想提示了。而按理说，在 xml 里面设置了 inputType=&amp;quot;textPassword&amp;quo">
 <meta name="keywords" content="Android">
 <meta property="og:type" content="article">
-<meta property="og:title" content="如何为 DFP Ads 自动添加 Test Device Id">
-<meta property="og:url" content="http://wliu6v.github.io/2016/How-to-Add-Test-Device-Id-for-DFP-Ads/index.html">
+<meta property="og:title" content="EmojiEditText 控件会覆盖 XML 中定义的 inputType 属性">
+<meta property="og:url" content="http://wliu6v.github.io/2017/EmojiEditText-override-inputtype/index.html">
 <meta property="og:site_name" content="6v&#39;s blog">
-<meta property="og:description" content="在使用 DFP Ads 的时候，官方文档中会要求开发人员在测试广告的过程中必须使用测试广告 ID，并需要将测试的设备在代码中添加为测试设备才可以正常使用。但添加的过程有些麻烦：我们需要将测试设备连接至电脑，启动应用拉取广告，同时观察 logcat 中的日志，抓取到形如 ... addTestDevice(&amp;quot;123456789ABCDEF0123456789ABCDEF0&amp;quot;) .">
-<meta property="og:updated_time" content="2017-02-25T05:42:14.284Z">
+<meta property="og:description" content="最近项目中引入了 support 26 中的 EmojiEditText (com.android.support:support-emoji:26.1.0)，我们自定义的 BaseEditText 也继承了 EmojiEditText。后来突然发现，在使用原生键盘输入密码的时候会出现单词联想提示了。而按理说，在 xml 里面设置了 inputType=&amp;quot;textPassword&amp;quo">
+<meta property="og:image" content="http://wliu6v.github.io/img/Emoji-Et-demo.png">
+<meta property="og:image" content="http://wliu6v.github.io/img/Emoji-Et-init.png">
+<meta property="og:image" content="http://wliu6v.github.io/img/Emoji-Et-Keylistener.png">
+<meta property="og:updated_time" content="2017-10-19T12:32:08.244Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="如何为 DFP Ads 自动添加 Test Device Id">
-<meta name="twitter:description" content="在使用 DFP Ads 的时候，官方文档中会要求开发人员在测试广告的过程中必须使用测试广告 ID，并需要将测试的设备在代码中添加为测试设备才可以正常使用。但添加的过程有些麻烦：我们需要将测试设备连接至电脑，启动应用拉取广告，同时观察 logcat 中的日志，抓取到形如 ... addTestDevice(&amp;quot;123456789ABCDEF0123456789ABCDEF0&amp;quot;) .">
+<meta name="twitter:title" content="EmojiEditText 控件会覆盖 XML 中定义的 inputType 属性">
+<meta name="twitter:description" content="最近项目中引入了 support 26 中的 EmojiEditText (com.android.support:support-emoji:26.1.0)，我们自定义的 BaseEditText 也继承了 EmojiEditText。后来突然发现，在使用原生键盘输入密码的时候会出现单词联想提示了。而按理说，在 xml 里面设置了 inputType=&amp;quot;textPassword&amp;quo">
+<meta name="twitter:image" content="http://wliu6v.github.io/img/Emoji-Et-demo.png">
 
 
 
@@ -128,13 +132,13 @@
 
 
 
-  <link rel="canonical" href="http://wliu6v.github.io/2016/How-to-Add-Test-Device-Id-for-DFP-Ads/"/>
+  <link rel="canonical" href="http://wliu6v.github.io/2017/EmojiEditText-override-inputtype/"/>
 
 
 
 
 
-  <title>如何为 DFP Ads 自动添加 Test Device Id | 6v's blog</title>
+  <title>EmojiEditText 控件会覆盖 XML 中定义的 inputType 属性 | 6v's blog</title>
 </head>
 
 <body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
@@ -264,7 +268,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://wliu6v.github.io/2016/How-to-Add-Test-Device-Id-for-DFP-Ads/">
+    <link itemprop="mainEntityOfPage" href="http://wliu6v.github.io/2017/EmojiEditText-override-inputtype/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="6v">
@@ -281,7 +285,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">如何为 DFP Ads 自动添加 Test Device Id</h1>
+          <h1 class="post-title" itemprop="name headline">EmojiEditText 控件会覆盖 XML 中定义的 inputType 属性</h1>
         
 
         <div class="post-meta">
@@ -293,8 +297,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-06-25T10:45:04+08:00">
-                2016-06-25
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-10-18T14:58:47+08:00">
+                2017-10-18
               </time>
             
 
@@ -312,9 +316,9 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2016/How-to-Add-Test-Device-Id-for-DFP-Ads/#comments" itemprop="discussionUrl">
+                <a href="/2017/EmojiEditText-override-inputtype/#comments" itemprop="discussionUrl">
                   <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2016/How-to-Add-Test-Device-Id-for-DFP-Ads/" itemprop="commentCount"></span>
+                        data-disqus-identifier="2017/EmojiEditText-override-inputtype/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -339,15 +343,20 @@
       
 
       
-        <p>在使用 DFP Ads 的时候，官方文档中会要求开发人员在测试广告的过程中必须使用测试广告 ID，并需要将测试的设备在代码中添加为测试设备才可以正常使用。但添加的过程有些麻烦：我们需要将测试设备连接至电脑，启动应用拉取广告，同时观察 logcat 中的日志，抓取到形如 <code>... addTestDevice(&quot;123456789ABCDEF0123456789ABCDEF0&quot;) ...</code> 的 log 后，将其中的 Device Id 写到代码中并重新编译才可以。如果测试设备很多，就要对每个设备都抓一遍 log，比较繁琐。因此希望能够在代码中自动抓取 DFP Ads 输出的 log，提取出 Test Device Id，并添加到代码中。这样就可以做到每个新的设备都可以在拉取一次广告后将自身加为测试设备了。</p>
-<p>实现基本如下：</p>
+        <p>最近项目中引入了 support 26 中的 EmojiEditText (<code>com.android.support:support-emoji:26.1.0</code>)，我们自定义的 BaseEditText 也继承了 EmojiEditText。后来突然发现，在使用原生键盘输入密码的时候会出现单词联想提示了。而按理说，在 xml 里面设置了 <code>inputType=&quot;textPassword&quot;</code> 的话，是不应该有联想提示的。</p>
 <a id="more"></a>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div></pre></td><td class="code"><pre><div class="line">private void loadAd() &#123;</div><div class="line">	PublisherAdView adView = (PublisherAdView) findViewById(R.id.ad_view);</div><div class="line">	PublisherAdRequest.Builder adBuilder = new PublisherAdRequest.Builder();</div><div class="line">	adView.loadAd(adBuilder.build());</div><div class="line">	saveTestDevice();</div><div class="line">&#125;</div><div class="line"></div><div class="line">private void addTestDevice(PublisherAdRequest.Builder builder) &#123;</div><div class="line">	String testDeviceId = PreferenceManager.getDefaultSharedPreferences(context).getString(</div><div class="line">				&quot;AD_TEST_DEVICE_ID&quot;, &quot;&quot;);</div><div class="line">	if (!TextUtils.isEmpty(testDeviceId)) &#123;</div><div class="line">		builder.addTestDevice(testDeviceId);</div><div class="line">	&#125;</div><div class="line">&#125;</div><div class="line"></div><div class="line">private void saveTestDevice() &#123;</div><div class="line">	try &#123;</div><div class="line"></div><div class="line">		ArrayList&lt;String&gt; loadLogCommand = new ArrayList();</div><div class="line">		loadLogCommand.add(&quot;logcat&quot;);       // 调用 logcat 命令</div><div class="line">		loadLogCommand.add(&quot;-d&quot;);           // 将命令的输出内容直接输出到屏幕上</div><div class="line">		loadLogCommand.add(&quot;|&quot;);            // | grep &quot;Ads&quot; 用来过滤输出的结果，仅需要观察 Ads 相关的 log</div><div class="line">		loadLogCommand.add(&quot;grep&quot;);</div><div class="line">		loadLogCommand.add(&quot;\&quot;Ads\&quot;&quot;);</div><div class="line">		</div><div class="line">		Process process = Runtime.getRuntime().exec(</div><div class="line">				loadLogCommand.toArray(new String[logLogCommand.size()]));</div><div class="line">		BufferedReader bufferedReader = new BufferedReader(</div><div class="line">				new InputStreamReader( process.getInputStream()), 1024 );</div><div class="line">		String line;</div><div class="line">		while ((line = bufferedReader.readLine()) != null) &#123;</div><div class="line">			if (line.contains(&quot;addTestDevice&quot;)) &#123;</div><div class="line">				int index = line.indexOf(&quot;(\&quot;&quot;) + 2;</div><div class="line">				String testDeviceId = line.substring(index, index + 32);</div><div class="line">				if (!TextUtils.isEmpty(testDeviceId)) &#123;</div><div class="line">					PreferenceManager.getDefaultSharedPreferences(context).edit().putString(</div><div class="line">						&quot;AD_TEST_DEVICE_ID&quot;, testDeviceId).apply();</div><div class="line">				&#125;</div><div class="line">				break;</div><div class="line">			&#125;</div><div class="line">		&#125;</div><div class="line"></div><div class="line"></div><div class="line">		Arraylist&lt;String&gt; clearLogCommand = new ArrayList();</div><div class="line">		clearLogCommand.add(&quot;logcat&quot;);      // 清空 logcat 输出内容</div><div class="line">		clearLogCommand.add(&quot;-c&quot;);</div><div class="line">		Runtime.getRuntime().exec(clearLogCommand.toArray(new String[clearLogCommand.size()]));</div><div class="line"></div><div class="line">	&#125; catch (Exception e) &#123;</div><div class="line">		e.printStackTrace();</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<h3 id="备注"><a href="#备注" class="headerlink" title="备注"></a>备注</h3><ul>
-<li>一些网上的教程说需要添加 READ_LOGS 的 permission 以获取读取日志的权限。但实际上，如果只是获取当前应用所生成的 log，似乎并不需要此权限。（况且读其他应用的日志，在 4.1 以上的 Android 系统中也需要 root 才能实现）</li>
-<li>clearLog 那个命令，据说如果不清理日志的话，任何操作都将产生新的日志并导致代码进入死循环。。不过实际上也没有出现，我猜测是如果要在 while 语句中输出 log 的话需要调用此命令，否则无所谓。</li>
-</ul>
-<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a href="http://www.cnblogs.com/mataojin/archive/2011/11/07/2239260.html" target="_blank" rel="external">博客园 - 马涛 - 如何获取 android 的系统日志 logcat</a></p>
+<p><img src="/img/Emoji-Et-demo.png" alt="正常的密码输入键盘与使用了 EmojiEditText 之后的密码键盘区别"></p>
+<p><em>只有左图是正常的，中图和右图都使用了 EmojiEditText，可以看到无论是否添加 textNoSuggestion，结果都是错误的</em></p>
+<p>经排查后发现，只有 EmojiEditText 会存在该问题，如果直接使用原生的 EditText 则正常。</p>
+<p>当我们设置 textPassword 之后，EditText.getInputType() 的值是 129。然而 EmojiTextView 会在 init 过程中执行一句 <code>setKeyListener(super.getKeyListener)</code> （如下图），这行代码会导致 EditText 的 inputType 变为 1。</p>
+<p><img src="/img/Emoji-Et-init.png" alt="EmojiEditText init 方法中导致 inputType 出错的语句"></p>
+<p>EmojiEditText 虽然重写了 <code>setKeyListener()</code> 方法，但是其内部实现与父类相比并没有什么特别的。我们可以创建一个正常的 TextView，设置其 inputType=”textPassword” ，然后执行下列语句：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">Log.d(<span class="string">"6v"</span>, <span class="string">"InputType="</span> + tv.getInputType()); <span class="comment">// inputType=129</span></div><div class="line">tv.setKeyListener(tv.getKeyListener());</div><div class="line">Log.d(<span class="string">"6v"</span>, <span class="string">"InputType="</span> + tv.getInputType()); <span class="comment">// inputType=1</span></div></pre></td></tr></table></figure>
+<p>可以看到即使什么也不做，只是简单地执行一下 <code>setKeyListener()</code> ，也会导致 inputType 被重置。因为 TextView 会在 <code>setKeyListener()</code> 方法中会将 TextView 自身的 inputType 设置为 keyListener 的 inputType。相关代码如下：</p>
+<p><img src="/img/Emoji-Et-Keylistener.png" alt="Emoji setKeyListener 相关代码"></p>
+<p>而继续往下追踪，我们不难发现，在 TextView 初始化过程中，会根据 inputType 去生成不同类型的 KeyListener：TextKeyListener, DigitsKeyListener, DateKeyListener 等等。在 TextKeyListener 中还会根据 <strong>是否存在大写限制</strong> 与 <strong>是否自动纠正</strong> 产生不同的细分，然而 <strong>是否为密码</strong> 并不在考虑范围内。因此无论是 textPassword 还是默认的 inputType，都会产生同一个 textKeyListener （inputType=1） 。在正常使用中，这里的处理没什么问题。但如果我们重新执行了 <code>setKeyListener()</code>，就会导致 TextView 的 inputType 被覆盖为 1，使得谷歌原生键盘产生了单词联想。</p>
+<p>因此，如果要解决这个 Bug，只能引入 EmojiEditText 的源码，修改其 init 逻辑，在执行 <code>setKeyListener()</code> 之前先保存一下 <code>TextView.getInputType()</code> 的值，然后 <code>setKeyListener()</code> 之后再重新 <code>setInputType()</code>。</p>
+<p>然而这么做实在是太复杂，所以最后的解决方案只是简单地将所有存在 <code>inputType=&quot;textPassword&quot;</code> 的地方改成了 EditText （而不是原来的自定义基类 EditText）。</p>
 
       
     </div>
@@ -406,8 +415,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2016/A-bug-when-use-MacType-in-Win10/" rel="next" title="一个神奇的 Bug：在 Win10 中使用 MacType 导致 Git rebase 命令出现问题">
-                <i class="fa fa-chevron-left"></i> 一个神奇的 Bug：在 Win10 中使用 MacType 导致 Git rebase 命令出现问题
+              <a href="/2017/Use-DiffUtil-in-RecyclerView/" rel="next" title="【译】在 RecyclerView 中使用 DiffUtil">
+                <i class="fa fa-chevron-left"></i> 【译】在 RecyclerView 中使用 DiffUtil
               </a>
             
           </div>
@@ -415,10 +424,6 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2017/Android-RTL-Support/" rel="prev" title="为 Android 应用添加 RTL 语言支持">
-                为 Android 应用添加 RTL 语言支持 <i class="fa fa-chevron-right"></i>
-              </a>
             
           </div>
         </div>
@@ -472,17 +477,8 @@
       
 
       
-        <ul class="sidebar-nav motion-element">
-          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
-            文章目录
-          </li>
-          <li class="sidebar-nav-overview" data-target="site-overview">
-            站点概览
-          </li>
-        </ul>
-      
 
-      <section class="site-overview sidebar-panel">
+      <section class="site-overview sidebar-panel sidebar-panel-active">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
           <img class="site-author-image" itemprop="image"
                src="https://www.gravatar.com/avatar/7a52fcfe31aa1240cb44e81ed48125d9?s=300"
@@ -542,22 +538,6 @@
 
       </section>
 
-      
-      <!--noindex-->
-        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
-          <div class="post-toc">
-
-            
-              
-            
-
-            
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#备注"><span class="nav-number">1.</span> <span class="nav-text">备注</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#参考资料"><span class="nav-number">2.</span> <span class="nav-text">参考资料</span></a></li></ol></div>
-            
-
-          </div>
-        </section>
-      <!--/noindex-->
       
 
       
@@ -709,9 +689,9 @@
     
       <script type="text/javascript">
         var disqus_config = function () {
-          this.page.url = 'http://wliu6v.github.io/2016/How-to-Add-Test-Device-Id-for-DFP-Ads/';
-          this.page.identifier = '2016/How-to-Add-Test-Device-Id-for-DFP-Ads/';
-          this.page.title = '如何为 DFP Ads 自动添加 Test Device Id';
+          this.page.url = 'http://wliu6v.github.io/2017/EmojiEditText-override-inputtype/';
+          this.page.identifier = '2017/EmojiEditText-override-inputtype/';
+          this.page.title = 'EmojiEditText 控件会覆盖 XML 中定义的 inputType 属性';
         };
         var d = document, s = d.createElement('script');
         s.src = 'https://wliu6v.disqus.com/embed.js';
