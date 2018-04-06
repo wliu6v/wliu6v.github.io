@@ -1,0 +1,781 @@
+<!doctype html>
+
+
+
+
+<html class="theme-next pisces" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Android," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="6v's blog" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.1" />
+
+
+
+
+
+
+<meta name="description" content="当 ListPreference 中执行 getSummary 的时候碰到了字符 ‘%’ 时会导致应用 crash。 解决方式重写 ListPreference 的 getSummary 方法，避免在遇到 ‘%’ 的时候 crash。">
+<meta name="keywords" content="Android">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Preference Crash When getSummary() Contains &#39;%&#39;">
+<meta property="og:url" content="http://wliu6v.github.io/2015/Preference-Crash-When-getSummary-Contains/index.html">
+<meta property="og:site_name" content="6v&#39;s blog">
+<meta property="og:description" content="当 ListPreference 中执行 getSummary 的时候碰到了字符 ‘%’ 时会导致应用 crash。 解决方式重写 ListPreference 的 getSummary 方法，避免在遇到 ‘%’ 的时候 crash。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2017-09-30T07:12:50.166Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Preference Crash When getSummary() Contains &#39;%&#39;">
+<meta name="twitter:description" content="当 ListPreference 中执行 getSummary 的时候碰到了字符 ‘%’ 时会导致应用 crash。 解决方式重写 ListPreference 的 getSummary 方法，避免在遇到 ‘%’ 的时候 crash。">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"right","display":"hide","offset":24,"offset_float":0,"b2t":false,"scrollpercent":true},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://wliu6v.github.io/2015/Preference-Crash-When-getSummary-Contains/"/>
+
+
+
+
+
+  <title>Preference Crash When getSummary() Contains '%' | 6v's blog</title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">6v's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://wliu6v.github.io/2015/Preference-Crash-When-getSummary-Contains/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="6v">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://www.gravatar.com/avatar/7a52fcfe31aa1240cb44e81ed48125d9?s=300">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="6v's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Preference Crash When getSummary() Contains '%'</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2015-04-06T16:11:48+08:00">
+                2015-04-06
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2015/Preference-Crash-When-getSummary-Contains/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2015/Preference-Crash-When-getSummary-Contains/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>当 ListPreference 中执行 getSummary 的时候碰到了字符 ‘%’ 时会导致应用 crash。</p>
+<h3 id="解决方式"><a href="#解决方式" class="headerlink" title="解决方式"></a>解决方式</h3><p>重写 ListPreference 的 getSummary 方法，避免在遇到 ‘%’ 的时候 crash。</p>
+<a id="more"></a>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="class"><span class="keyword">class</span> <span class="title">NoneFormatSummaryListPreference</span> <span class="keyword">extends</span> <span class="title">ListPreference</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="title">NoneFormatSummaryListPreference</span><span class="params">(Context context)</span> </span>&#123;</span><br><span class="line">		<span class="keyword">super</span>(context);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="function"><span class="keyword">public</span> CharSequence <span class="title">getSummary</span><span class="params">()</span> </span>&#123;</span><br><span class="line">		<span class="keyword">try</span> &#123;</span><br><span class="line">			<span class="comment">// for call super.super.getSummary()</span></span><br><span class="line">			CharSequence[] entries = <span class="keyword">super</span>.getEntries();</span><br><span class="line">			<span class="keyword">super</span>.setEntries(<span class="keyword">null</span>);</span><br><span class="line">			CharSequence result = <span class="keyword">super</span>.getSummary();</span><br><span class="line">			<span class="keyword">super</span>.setEntries(entries);</span><br><span class="line">			<span class="keyword">return</span> result;</span><br><span class="line">			<span class="comment">// return super.getSummary();</span></span><br><span class="line">		&#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">			e.printStackTrace();</span><br><span class="line">			<span class="keyword">return</span> <span class="string">""</span>;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h3><p>以下内容皆引用自 <a href="http://gmariotti.blogspot.sg/2013/02/preference-summary-or-secondary-text.html" target="_blank" rel="noopener">Preference Summary or Secondary Text</a> :</p>
+<blockquote>
+<p><strong>A note about ListPreference.</strong> In <a href="http://developer.android.com/reference/android/preference/ListPreference.html#setSummary%28java.lang.CharSequence%29" target="_blank" rel="noopener">android doc</a> we can read:</p>
+</blockquote>
+<blockquote>
+<blockquote>
+<p>If the summary has a String formatting marker in it (i.e. “%s” or “%1$s”), then the current entry value will be substituted in its place when it’s retrieved.</p>
+</blockquote>
+</blockquote>
+<blockquote>
+<p>As a result, if you set “summary” that contains “%” char (like “5%”), you can have <code>java.util.UnknownFormatConversionException</code>: Conversion: because it may be an unknown format.<br>The reason is here (standard method in ListPreference)</p>
+</blockquote>
+<blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">public CharSequence getSummary() &#123; </span><br><span class="line">	final CharSequence entry = getEntry(); </span><br><span class="line">	if (mSummary == null || entry == null) &#123; </span><br><span class="line">		return super.getSummary(); </span><br><span class="line">	&#125; else &#123; </span><br><span class="line">		return String.format(mSummary, entry); </span><br><span class="line">	&#125; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</blockquote>
+<blockquote>
+<p>If you want to use value like “5%” in ListPreference, in API Level 11 or higher, you need to be careful.<br>I suggest you create a subclass of ListPreference, override getSummary() method and return whatever you need, skipping the call to String.format().<br>Alternatively you can obtain percent character in String.format() by specifying “%%”. </p>
+</blockquote>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div></div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/wx_reward.png" alt="6v WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/Integer-getInteger/" rel="next" title="Integer.getInteger()">
+                <i class="fa fa-chevron-left"></i> Integer.getInteger()
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2015/Set-onClickListener-for-EditText-in-ActionBar-s-SearchView/" rel="prev" title="Set onClickListener for EditText in ActionBar's SearchView">
+                Set onClickListener for EditText in ActionBar's SearchView <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="https://www.gravatar.com/avatar/7a52fcfe31aa1240cb44e81ed48125d9?s=300"
+               alt="6v" />
+          <p class="site-author-name" itemprop="name">6v</p>
+           
+              <p class="site-description motion-element" itemprop="description">这个人很懒，没有写站点描述。</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">26</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">7</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#解决方式"><span class="nav-number">1.</span> <span class="nav-text">解决方式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#原理"><span class="nav-number">2.</span> <span class="nav-text">原理</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2014 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-star"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">6v</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+  
+  <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.1"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://wliu6v.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'http://wliu6v.github.io/2015/Preference-Crash-When-getSummary-Contains/';
+          this.page.identifier = '2015/Preference-Crash-When-getSummary-Contains/';
+          this.page.title = 'Preference Crash When getSummary() Contains \'%\'';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://wliu6v.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+</body>
+</html>
