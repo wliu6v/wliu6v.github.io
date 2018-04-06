@@ -17,7 +17,7 @@ avatar: https://www.gravatar.com/avatar/7a52fcfe31aa1240cb44e81ed48125d9?s=300
 ## If your site is put in a subdirectory, set url as 'http://yoursite.com/child' and root as '/child/'
 url: http://wliu6v.github.io
 root: /
-permalink: :year/:title/
+permalink: :title/
 permalink_defaults:
 
 # Directory

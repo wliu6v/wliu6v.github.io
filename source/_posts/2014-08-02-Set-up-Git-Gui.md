@@ -8,8 +8,6 @@ tags: [Git]
 
 <!-- more -->
 
-#
-
 # Git Clean
 
 当切换分支到 gitignore 改动的版本时，通常会导致 git 记录一些 untracked files，导致无法正常返回到原分支状态。此时需要将 untracked files 先移除掉。
@@ -69,7 +67,7 @@ Git 在合并的时候默认的是使用快速合并。这样的话，如果当�
 
 ##  如何同时对多个账户进行配置
 
-see [Config Multi GitHub Account on Windows](2017-10-26-Config-Multi-GitHub-Account-on-Windows.md)
+see [Config Multi GitHub Account on Windows](../Config-Multi-GitHub-Account-on-Windows)
 
 
 #	在 Git Gui 中添加部分命令
