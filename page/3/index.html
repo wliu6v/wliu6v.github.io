@@ -265,7 +265,7 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://wliu6v.github.io/2014/Memo/">
+    <link itemprop="mainEntityOfPage" href="http://wliu6v.github.io/EditText-lose-focus/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="6v">
@@ -284,7 +284,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2014/Memo/" itemprop="url">Tips</a></h1>
+                <a class="post-title-link" href="/EditText-lose-focus/" itemprop="url">EditText 在进行物理键盘输入时失去焦点问题</a></h1>
         
 
         <div class="post-meta">
@@ -296,8 +296,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2014-08-16T20:34:43+08:00">
-                2014-08-16
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2014-08-20T14:15:10+08:00">
+                2014-08-20
               </time>
             
 
@@ -315,9 +315,9 @@
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2014/Memo/#comments" itemprop="discussionUrl">
+                <a href="/EditText-lose-focus/#comments" itemprop="discussionUrl">
                   <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2014/Memo/" itemprop="commentCount"></span>
+                        data-disqus-identifier="EditText-lose-focus/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -344,15 +344,20 @@
       
         
           
-          Windows7 与 Ubuntu 双系统安装http://bbs.pcbeta.com/viewthread-1046663-1-1.htmlhttp://blog.csdn.net/lvanneo/article/details/16885121
-在 Ubuntu 上安装搜狗输入法首先尝试官网的安装，如果不行的话，需要切换输入法设置。方法是输入 im-config，然后选择 ok - yes - fcitx 。然后重启。
-http://www.2cto.com/os/201405/305463.html
-aapt exceptionhttp://askubuntu.com/questions/147400/problems-with-eclipse-and-android-sdk
+          当同屏存在自定义的 TabBar 的时候，偶尔会出现这样一个问题：当光标在 EditText 中，敲击物理键盘的任意键，EditText 会失去焦点。此时按方向键，发现 TabBar 发生了左右移动，说明焦点被其获取。
+要解决此问题，只需添加如下语句：
+mTabHost.addOnAttachStateChangeListener(new OnAttachStateChangeListener() {
 
-          
+        @Override
+        public void onViewDetachedFromWindow(View v) {}
+
+        @Override
+        public void onViewAttachedToWindow(View v) {
+
+          ...
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2014/Memo/" rel="contents">
+            <a class="btn" href="/EditText-lose-focus/" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -398,7 +403,7 @@ aapt exceptionhttp://askubuntu.com/questions/147400/problems-with-eclipse-and-an
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://wliu6v.github.io/2014/onmeasure-crashed/">
+    <link itemprop="mainEntityOfPage" href="http://wliu6v.github.io/Memo/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="6v">
@@ -417,7 +422,136 @@ aapt exceptionhttp://askubuntu.com/questions/147400/problems-with-eclipse-and-an
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2014/onmeasure-crashed/" itemprop="url">onmeasure crashed</a></h1>
+                <a class="post-title-link" href="/Memo/" itemprop="url">Tips</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2014-08-16T20:34:43+08:00">
+                2014-08-16
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/Memo/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="Memo/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          <blockquote>
+<p>一些杂七杂八的问题</p>
+</blockquote>
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/Memo/" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://wliu6v.github.io/onmeasure-crashed/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="6v">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://www.gravatar.com/avatar/7a52fcfe31aa1240cb44e81ed48125d9?s=300">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="6v's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/onmeasure-crashed/" itemprop="url">onmeasure crashed</a></h1>
         
 
         <div class="post-meta">
@@ -448,9 +582,9 @@ aapt exceptionhttp://askubuntu.com/questions/147400/problems-with-eclipse-and-an
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2014/onmeasure-crashed/#comments" itemprop="discussionUrl">
+                <a href="/onmeasure-crashed/#comments" itemprop="discussionUrl">
                   <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2014/onmeasure-crashed/" itemprop="commentCount"></span>
+                        data-disqus-identifier="onmeasure-crashed/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -484,7 +618,7 @@ aapt exceptionhttp://askubuntu.com/questions/147400/problems-with-eclipse-and-an
           
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2014/onmeasure-crashed/" rel="contents">
+            <a class="btn" href="/onmeasure-crashed/" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -530,7 +664,7 @@ aapt exceptionhttp://askubuntu.com/questions/147400/problems-with-eclipse-and-an
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://wliu6v.github.io/2014/Memo-Android/">
+    <link itemprop="mainEntityOfPage" href="http://wliu6v.github.io/Memo-Android/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="6v">
@@ -549,7 +683,7 @@ aapt exceptionhttp://askubuntu.com/questions/147400/problems-with-eclipse-and-an
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2014/Memo-Android/" itemprop="url">Android Tips</a></h1>
+                <a class="post-title-link" href="/Memo-Android/" itemprop="url">Android Tips</a></h1>
         
 
         <div class="post-meta">
@@ -580,9 +714,9 @@ aapt exceptionhttp://askubuntu.com/questions/147400/problems-with-eclipse-and-an
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2014/Memo-Android/#comments" itemprop="discussionUrl">
+                <a href="/Memo-Android/#comments" itemprop="discussionUrl">
                   <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2014/Memo-Android/" itemprop="commentCount"></span>
+                        data-disqus-identifier="Memo-Android/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -611,7 +745,7 @@ aapt exceptionhttp://askubuntu.com/questions/147400/problems-with-eclipse-and-an
           <p>这篇文章会集合 Android 开发过程中遇到的奇怪的各种坑与小技巧。持续更新。</p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2014/Memo-Android/" rel="contents">
+            <a class="btn" href="/Memo-Android/" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -657,7 +791,7 @@ aapt exceptionhttp://askubuntu.com/questions/147400/problems-with-eclipse-and-an
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://wliu6v.github.io/2014/Android-9-patch-image/">
+    <link itemprop="mainEntityOfPage" href="http://wliu6v.github.io/Android-9-patch-image/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="6v">
@@ -676,7 +810,7 @@ aapt exceptionhttp://askubuntu.com/questions/147400/problems-with-eclipse-and-an
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2014/Android-9-patch-image/" itemprop="url">Android 9-patch image</a></h1>
+                <a class="post-title-link" href="/Android-9-patch-image/" itemprop="url">Android 9-patch image</a></h1>
         
 
         <div class="post-meta">
@@ -707,9 +841,9 @@ aapt exceptionhttp://askubuntu.com/questions/147400/problems-with-eclipse-and-an
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2014/Android-9-patch-image/#comments" itemprop="discussionUrl">
+                <a href="/Android-9-patch-image/#comments" itemprop="discussionUrl">
                   <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2014/Android-9-patch-image/" itemprop="commentCount"></span>
+                        data-disqus-identifier="Android-9-patch-image/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -744,7 +878,7 @@ aapt exceptionhttp://askubuntu.com/questions/147400/problems-with-eclipse-and-an
 </ol>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2014/Android-9-patch-image/" rel="contents">
+            <a class="btn" href="/Android-9-patch-image/" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -790,7 +924,7 @@ aapt exceptionhttp://askubuntu.com/questions/147400/problems-with-eclipse-and-an
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://wliu6v.github.io/2014/Set-up-Git-Gui/">
+    <link itemprop="mainEntityOfPage" href="http://wliu6v.github.io/Set-up-Git-Gui/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="6v">
@@ -809,7 +943,7 @@ aapt exceptionhttp://askubuntu.com/questions/147400/problems-with-eclipse-and-an
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2014/Set-up-Git-Gui/" itemprop="url">Git & GitHub</a></h1>
+                <a class="post-title-link" href="/Set-up-Git-Gui/" itemprop="url">Git & GitHub</a></h1>
         
 
         <div class="post-meta">
@@ -840,9 +974,9 @@ aapt exceptionhttp://askubuntu.com/questions/147400/problems-with-eclipse-and-an
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2014/Set-up-Git-Gui/#comments" itemprop="discussionUrl">
+                <a href="/Set-up-Git-Gui/#comments" itemprop="discussionUrl">
                   <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2014/Set-up-Git-Gui/" itemprop="commentCount"></span>
+                        data-disqus-identifier="Set-up-Git-Gui/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -871,7 +1005,7 @@ aapt exceptionhttp://askubuntu.com/questions/147400/problems-with-eclipse-and-an
           <p>这篇文章会集合平常使用 Git &amp; GitHub 的各种坑与小技巧。持续更新。</p>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2014/Set-up-Git-Gui/" rel="contents">
+            <a class="btn" href="/Set-up-Git-Gui/" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -917,7 +1051,7 @@ aapt exceptionhttp://askubuntu.com/questions/147400/problems-with-eclipse-and-an
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-    <link itemprop="mainEntityOfPage" href="http://wliu6v.github.io/2014/Android-分辨率适配/">
+    <link itemprop="mainEntityOfPage" href="http://wliu6v.github.io/Android-Device-Compatibility/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="6v">
@@ -936,7 +1070,7 @@ aapt exceptionhttp://askubuntu.com/questions/147400/problems-with-eclipse-and-an
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2014/Android-分辨率适配/" itemprop="url">Android 分辨率适配</a></h1>
+                <a class="post-title-link" href="/Android-Device-Compatibility/" itemprop="url">Android 分辨率适配</a></h1>
         
 
         <div class="post-meta">
@@ -967,9 +1101,9 @@ aapt exceptionhttp://askubuntu.com/questions/147400/problems-with-eclipse-and-an
                 <span class="post-meta-item-icon">
                   <i class="fa fa-comment-o"></i>
                 </span>
-                <a href="/2014/Android-分辨率适配/#comments" itemprop="discussionUrl">
+                <a href="/Android-Device-Compatibility/#comments" itemprop="discussionUrl">
                   <span class="post-comments-count disqus-comment-count"
-                        data-disqus-identifier="2014/Android-分辨率适配/" itemprop="commentCount"></span>
+                        data-disqus-identifier="Android-Device-Compatibility/" itemprop="commentCount"></span>
                 </a>
               </span>
             
@@ -1005,7 +1139,7 @@ xxxhdpi = 1:4
 </code></pre>
           <!--noindex-->
           <div class="post-button text-center">
-            <a class="btn" href="/2014/Android-分辨率适配/" rel="contents">
+            <a class="btn" href="/Android-Device-Compatibility/" rel="contents">
               阅读全文 &raquo;
             </a>
           </div>
@@ -1091,7 +1225,7 @@ xxxhdpi = 1:4
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">26</span>
+                <span class="site-state-item-count">27</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>

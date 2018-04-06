@@ -1,0 +1,752 @@
+<!doctype html>
+
+
+
+
+<html class="theme-next pisces" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Android," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="6v's blog" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.1" />
+
+
+
+
+
+
+<meta name="description" content="最近项目中引入了 support 26 中的 EmojiEditText (com.android.support:support-emoji:26.1.0)，我们自定义的 BaseEditText 也继承了 EmojiEditText。后来突然发现，在使用原生键盘输入密码的时候会出现单词联想提示了。而按理说，在 xml 里面设置了 inputType=&amp;quot;textPassword&amp;quo">
+<meta name="keywords" content="Android">
+<meta property="og:type" content="article">
+<meta property="og:title" content="EmojiEditText 控件会覆盖 XML 中定义的 inputType 属性">
+<meta property="og:url" content="http://wliu6v.github.io/EmojiEditText-override-inputtype/index.html">
+<meta property="og:site_name" content="6v&#39;s blog">
+<meta property="og:description" content="最近项目中引入了 support 26 中的 EmojiEditText (com.android.support:support-emoji:26.1.0)，我们自定义的 BaseEditText 也继承了 EmojiEditText。后来突然发现，在使用原生键盘输入密码的时候会出现单词联想提示了。而按理说，在 xml 里面设置了 inputType=&amp;quot;textPassword&amp;quo">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://wliu6v.github.io/img/Emoji-Et-demo.png">
+<meta property="og:image" content="http://wliu6v.github.io/img/Emoji-Et-init.png">
+<meta property="og:image" content="http://wliu6v.github.io/img/Emoji-Et-Keylistener.png">
+<meta property="og:updated_time" content="2017-10-19T12:38:50.118Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="EmojiEditText 控件会覆盖 XML 中定义的 inputType 属性">
+<meta name="twitter:description" content="最近项目中引入了 support 26 中的 EmojiEditText (com.android.support:support-emoji:26.1.0)，我们自定义的 BaseEditText 也继承了 EmojiEditText。后来突然发现，在使用原生键盘输入密码的时候会出现单词联想提示了。而按理说，在 xml 里面设置了 inputType=&amp;quot;textPassword&amp;quo">
+<meta name="twitter:image" content="http://wliu6v.github.io/img/Emoji-Et-demo.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"right","display":"hide","offset":24,"offset_float":0,"b2t":false,"scrollpercent":true},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://wliu6v.github.io/EmojiEditText-override-inputtype/"/>
+
+
+
+
+
+  <title>EmojiEditText 控件会覆盖 XML 中定义的 inputType 属性 | 6v's blog</title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">6v's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://wliu6v.github.io/EmojiEditText-override-inputtype/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="6v">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://www.gravatar.com/avatar/7a52fcfe31aa1240cb44e81ed48125d9?s=300">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="6v's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">EmojiEditText 控件会覆盖 XML 中定义的 inputType 属性</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-10-18T14:58:47+08:00">
+                2017-10-18
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/EmojiEditText-override-inputtype/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="EmojiEditText-override-inputtype/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>最近项目中引入了 support 26 中的 EmojiEditText (<code>com.android.support:support-emoji:26.1.0</code>)，我们自定义的 BaseEditText 也继承了 EmojiEditText。后来突然发现，在使用原生键盘输入密码的时候会出现单词联想提示了。而按理说，在 xml 里面设置了 <code>inputType=&quot;textPassword&quot;</code> 的话，是不应该有联想提示的。</p>
+<a id="more"></a>
+<p><img src="/img/Emoji-Et-demo.png" alt="正常的密码输入键盘与使用了 EmojiEditText 之后的密码键盘区别"></p>
+<p><em>只有左图是正常的，中图和右图都使用了 EmojiEditText，可以看到无论是否添加 textNoSuggestion，结果都是错误的</em></p>
+<p>经排查后发现，只有 EmojiEditText 会存在该问题，如果直接使用原生的 EditText 则正常。</p>
+<p>当我们设置 textPassword 之后，EditText.getInputType() 的值是 129。然而 EmojiTextView 会在 init 过程中执行一句 <code>setKeyListener(super.getKeyListener)</code> （如下图），这行代码会导致 EditText 的 inputType 变为 1。</p>
+<p><img src="/img/Emoji-Et-init.png" alt="EmojiEditText init 方法中导致 inputType 出错的语句"></p>
+<p>EmojiEditText 虽然重写了 <code>setKeyListener()</code> 方法，但是其内部实现与父类相比并没有什么特别的。我们可以创建一个正常的 TextView，设置其 inputType=”textPassword” ，然后执行下列语句：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Log.d(<span class="string">"6v"</span>, <span class="string">"InputType="</span> + tv.getInputType()); <span class="comment">// inputType=129</span></span><br><span class="line">tv.setKeyListener(tv.getKeyListener());</span><br><span class="line">Log.d(<span class="string">"6v"</span>, <span class="string">"InputType="</span> + tv.getInputType()); <span class="comment">// inputType=1</span></span><br></pre></td></tr></table></figure>
+<p>可以看到即使什么也不做，只是简单地执行一下 <code>setKeyListener()</code> ，也会导致 inputType 被重置。因为 TextView 会在 <code>setKeyListener()</code> 方法中会将 TextView 自身的 inputType 设置为 keyListener 的 inputType。相关代码如下：</p>
+<p><img src="/img/Emoji-Et-Keylistener.png" alt="Emoji setKeyListener 相关代码"></p>
+<p>而继续往下追踪，我们不难发现，在 TextView 初始化过程中，会根据 inputType 去生成不同类型的 KeyListener：TextKeyListener, DigitsKeyListener, DateKeyListener 等等，通过这些不同类型的 KeyListener 去限制用户输入的内容。在 TextKeyListener 中还会根据 <strong>是否存在大写限制</strong> 与 <strong>是否自动纠正</strong> 产生不同的细分，然而 <strong>是否为密码</strong> 并不在考虑范围内。因此无论是 textPassword 还是默认的 inputType，都会产生同一个类型的 textKeyListener （inputType=1） 。在正常使用中，这里的处理没什么问题。但如果我们重新执行了 <code>setKeyListener()</code>，就会导致 TextView 的 inputType 被覆盖为 1，使得谷歌原生键盘产生了单词联想。</p>
+<p>因此，如果要解决这个 Bug，只能引入 EmojiEditText 的源码，修改其 init 逻辑，在执行 <code>setKeyListener()</code> 之前先保存一下 <code>TextView.getInputType()</code> 的值，然后 <code>setKeyListener()</code> 之后再重新 <code>setInputType()</code>。</p>
+<p>然而这么做实在是太复杂，所以最后的解决方案只是简单地将所有存在 <code>inputType=&quot;textPassword&quot;</code> 的地方改成了 EditText （而不是原来的自定义基类 EditText）。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div></div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/wx_reward.png" alt="6v WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/Use-DiffUtil-in-RecyclerView/" rel="next" title="【译】在 RecyclerView 中使用 DiffUtil">
+                <i class="fa fa-chevron-left"></i> 【译】在 RecyclerView 中使用 DiffUtil
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/Config-Multi-GitHub-Account-on-Windows/" rel="prev" title="Config Multi GitHub Account on Windows">
+                Config Multi GitHub Account on Windows <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview sidebar-panel sidebar-panel-active">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="https://www.gravatar.com/avatar/7a52fcfe31aa1240cb44e81ed48125d9?s=300"
+               alt="6v" />
+          <p class="site-author-name" itemprop="name">6v</p>
+           
+              <p class="site-description motion-element" itemprop="description">这个人很懒，没有写站点描述。</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">27</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">7</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2014 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-star"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">6v</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+  
+  <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.1"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://wliu6v.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'http://wliu6v.github.io/EmojiEditText-override-inputtype/';
+          this.page.identifier = 'EmojiEditText-override-inputtype/';
+          this.page.title = 'EmojiEditText 控件会覆盖 XML 中定义的 inputType 属性';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://wliu6v.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+</body>
+</html>

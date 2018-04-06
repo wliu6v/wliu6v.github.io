@@ -1,0 +1,812 @@
+<!doctype html>
+
+
+
+
+<html class="theme-next pisces" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="Android," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="6v's blog" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.1" />
+
+
+
+
+
+
+<meta name="description" content="Stetho 是 Facebook 提供的一个面向 Android App 的调试工具。在配置好 Stetho 之后，我们可以在 Chrome 中对特定应用进行调试，功能包括：查看数据库与 SharedPerferences、查看网络请求、查看当前视图布局（hierarchy view）等等，甚至可以通过 JavaScript 调用 Android App 中的部分命令。">
+<meta name="keywords" content="Android">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Add stetho in Android Apps">
+<meta property="og:url" content="http://wliu6v.github.io/Add-stetho-in-Android-Apps/index.html">
+<meta property="og:site_name" content="6v&#39;s blog">
+<meta property="og:description" content="Stetho 是 Facebook 提供的一个面向 Android App 的调试工具。在配置好 Stetho 之后，我们可以在 Chrome 中对特定应用进行调试，功能包括：查看数据库与 SharedPerferences、查看网络请求、查看当前视图布局（hierarchy view）等等，甚至可以通过 JavaScript 调用 Android App 中的部分命令。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2016-05-24T03:40:57.819Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Add stetho in Android Apps">
+<meta name="twitter:description" content="Stetho 是 Facebook 提供的一个面向 Android App 的调试工具。在配置好 Stetho 之后，我们可以在 Chrome 中对特定应用进行调试，功能包括：查看数据库与 SharedPerferences、查看网络请求、查看当前视图布局（hierarchy view）等等，甚至可以通过 JavaScript 调用 Android App 中的部分命令。">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    sidebar: {"position":"right","display":"hide","offset":24,"offset_float":0,"b2t":false,"scrollpercent":true},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://wliu6v.github.io/Add-stetho-in-Android-Apps/"/>
+
+
+
+
+
+  <title>Add stetho in Android Apps | 6v's blog</title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-right page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">6v's blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="http://wliu6v.github.io/Add-stetho-in-Android-Apps/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="6v">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="https://www.gravatar.com/avatar/7a52fcfe31aa1240cb44e81ed48125d9?s=300">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="6v's blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Add stetho in Android Apps</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-05-20T18:01:59+08:00">
+                2016-05-20
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/Add-stetho-in-Android-Apps/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="Add-stetho-in-Android-Apps/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p><a href="http://facebook.github.io/stetho/" target="_blank" rel="noopener">Stetho</a> 是 Facebook 提供的一个面向 Android App 的调试工具。在配置好 Stetho 之后，我们可以在 Chrome 中对特定应用进行调试，功能包括：查看数据库与 SharedPerferences、查看网络请求、查看当前视图布局（hierarchy view）等等，甚至可以通过 JavaScript 调用 Android App 中的部分命令。</p>
+<a id="more"></a>
+<h2 id="如何集成"><a href="#如何集成" class="headerlink" title="如何集成"></a>如何集成</h2><p>可以参照 <a href="http://facebook.github.io/stetho/" target="_blank" rel="noopener">Stetho 官方网页</a>。<br>步骤基本上就两三步：</p>
+<ol>
+<li>在 build.gradle 添加 stetho 的依赖。</li>
+<li>在 Application 初始化的时候添加 stetho 的初始化代码。</li>
+</ol>
+<p>这两步完成之后可以实现除抓包之外的大部分功能。<br>要实现抓包，需要根据使用的网络请求库进行特定的配置。比如用的如果是 OkHttp 的话，就需要添加 stetho-okhttp 的依赖，并且在初始化 OkHttp 的时候添加对 Stetho 的 Interceptor。</p>
+<p>具体的步骤可以参照其他人的教程：</p>
+<p><a href="http://stormzhang.com/android/2015/03/05/android-debug-use-chrome/" target="_blank" rel="noopener">http://stormzhang.com/android/2015/03/05/android-debug-use-chrome/</a><br><a href="http://blog.csdn.net/sbsujjbcy/article/details/45420475" target="_blank" rel="noopener">http://blog.csdn.net/sbsujjbcy/article/details/45420475</a></p>
+<h2 id="如何仅在-Debug-下启用-Stetho"><a href="#如何仅在-Debug-下启用-Stetho" class="headerlink" title="如何仅在 Debug 下启用 Stetho"></a>如何仅在 Debug 下启用 Stetho</h2><p>之前已经有很多人写过关于基本的如何集成 Stetho 及其使用方式。这里我着重描述如何仅在 Debug 版本中使用 Stetho。</p>
+<p>Stetho 是一个调试工具，其大部分使用场景都仅限于开发阶段。如果在 Release 中也导入 Stetho 的话，会导致应用体积变大，并有可能使应用的安全性降低。因此我们需要仅在 Debug 版本中使用 Stetho。</p>
+<p>基本方法分为两步：</p>
+<ol>
+<li>在 build.gradle 添加依赖的时候，使用 debugCompile 而不是 compile</li>
+<li>分别在 debug 和 release 代码目录中创建 Stetho 初始化类，然后在 Application 初始化的时候使用该 Stetho 初始化类进行初始化。</li>
+</ol>
+<p>如果项目采用的是 Android Studio 的代码结构，并且 OkHttp 直接在项目中，那么只要参照这篇教程即可： <a href="http://stackoverflow.com/questions/30172308/include-stetho-only-in-the-debug-build-variant/31483962#31483962" target="_blank" rel="noopener">http://stackoverflow.com/questions/30172308/include-stetho-only-in-the-debug-build-variant/31483962#31483962</a></p>
+<p>但我在我的项目中按照此教程进行操作的时候碰到三个问题，下面分别讲述</p>
+<h2 id="问题一：debug-目录可以识别，但-release-目录无法正常识别出-java-代码"><a href="#问题一：debug-目录可以识别，但-release-目录无法正常识别出-java-代码" class="headerlink" title="问题一：debug 目录可以识别，但 release 目录无法正常识别出 java 代码"></a>问题一：debug 目录可以识别，但 release 目录无法正常识别出 java 代码</h2><p>当我们创建 debug 目录和 release 目录时，有时候会出现其中一个目录中的 java 文件无法被正常识别为 java class 的情况。此时需要注意，该目录与 build variant 的编译方式是同步的。当我们以 debug 方式编译的时候，Android studio 可以识别 debug 目录，但是无法识别 release 目录。反之亦然。</p>
+<h2 id="问题二：OkHttp-是以-Library-方式添加，无法以-debug-方式进行编译"><a href="#问题二：OkHttp-是以-Library-方式添加，无法以-debug-方式进行编译" class="headerlink" title="问题二：OkHttp 是以 Library 方式添加，无法以 debug 方式进行编译"></a>问题二：OkHttp 是以 Library 方式添加，无法以 debug 方式进行编译</h2><p>对于 Library 的 Module，默认总是会以 Release 进行编译，即使在编译的时候选择的 Debug 也没用。为了防止这一情况，我们需要在 Library 的 build.gradle 中添加以下内容：</p>
+<pre><code>publishNonDefault true
+</code></pre><p>然后在主 Module 中将对改 library 的依赖改为：</p>
+<pre><code>debugCompile project(path: &apos;:foo_library&apos;, configuration: &apos;debug&apos;)
+releaseCompile project(path: &apos;:foo_library&apos;, configuration: &apos;release&apos;)
+</code></pre><p>即可正常的以 debug 方式编译 library 了。其他的要点同上</p>
+<h2 id="问题三：项目结构是-Eclipse-结构而非-Android-Studio-结构"><a href="#问题三：项目结构是-Eclipse-结构而非-Android-Studio-结构" class="headerlink" title="问题三：项目结构是 Eclipse 结构而非 Android Studio 结构"></a>问题三：项目结构是 Eclipse 结构而非 Android Studio 结构</h2><p>在 Android Studio 结构的代码中，debug 目录是 <code>src/debug/java/</code>，release 目录是 <code>src/release/java/</code> </p>
+<p>而在 Eclipse 的代码结构中，debug 目录是 <code>build-types/debug/java/</code>, release 目录是 <code>build-types/release/java/</code></p>
+<p>基本结构如下图所示：</p>
+<pre><code>module
+    - build-types
+        - debug
+            - java
+                - com
+                    - package.name
+        - release
+            - ...
+    - src
+        - com
+            - package.name
+</code></pre><hr>
+<h2 id="其他的问题"><a href="#其他的问题" class="headerlink" title="其他的问题"></a>其他的问题</h2><p>我会将使用 Stetho 过程中碰到的其他问题陆续更新在这里。</p>
+<h3 id="Database-中内容显示不全"><a href="#Database-中内容显示不全" class="headerlink" title="Database 中内容显示不全"></a>Database 中内容显示不全</h3><p>使用 Stetho 查看 Database 时，显示的行数被限制在 250 行，代码在 <a href="https://github.com/facebook/stetho/blob/master/stetho/src/main/java/com/facebook/stetho/inspector/protocol/module/Database.java#L54" target="_blank" rel="noopener">stetho/stetho/src/main/java/com/facebook/stetho/inspector/protocol/module/Database.java</a> 中：</p>
+<pre><code>/**
+ * The protocol doesn&apos;t offer an efficient means of pagination or anything like that so
+ * we&apos;ll just cap the result list to some arbitrarily large number that I think folks will
+ * actually need in practice.
+ * &lt;p&gt;
+ * Note that when this limit is exceeded, a dummy row will be introduced that indicates
+ * truncation occurred.
+ */
+private static final int MAX_EXECUTE_RESULTS = 250;
+</code></pre><p>因此我们要查看 database 的时候可能需要自己编写 SQL 语句进行查询。方法是选中某个 database（而非某个 Table）并在右侧光标处输入语句进行查询。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+  <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+    <div></div>
+    <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+      <span>赏</span>
+    </button>
+    <div id="QR" style="display: none;">
+      
+        <div id="wechat" style="display: inline-block">
+          <img id="wechat_qr" src="/images/wx_reward.png" alt="6v WeChat Pay"/>
+          <p>微信打赏</p>
+        </div>
+      
+      
+    </div>
+  </div>
+
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Android/" rel="tag"># Android</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/Android-Annotation/" rel="next" title="Android Annotation">
+                <i class="fa fa-chevron-left"></i> Android Annotation
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/Multi-Flavor-in-Android-Studio/" rel="prev" title="Multi-Flavor in Android Studio">
+                Multi-Flavor in Android Studio <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="https://www.gravatar.com/avatar/7a52fcfe31aa1240cb44e81ed48125d9?s=300"
+               alt="6v" />
+          <p class="site-author-name" itemprop="name">6v</p>
+           
+              <p class="site-description motion-element" itemprop="description">这个人很懒，没有写站点描述。</p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives">
+                <span class="site-state-item-count">27</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">7</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#如何集成"><span class="nav-number">1.</span> <span class="nav-text">如何集成</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#如何仅在-Debug-下启用-Stetho"><span class="nav-number">2.</span> <span class="nav-text">如何仅在 Debug 下启用 Stetho</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#问题一：debug-目录可以识别，但-release-目录无法正常识别出-java-代码"><span class="nav-number">3.</span> <span class="nav-text">问题一：debug 目录可以识别，但 release 目录无法正常识别出 java 代码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#问题二：OkHttp-是以-Library-方式添加，无法以-debug-方式进行编译"><span class="nav-number">4.</span> <span class="nav-text">问题二：OkHttp 是以 Library 方式添加，无法以 debug 方式进行编译</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#问题三：项目结构是-Eclipse-结构而非-Android-Studio-结构"><span class="nav-number">5.</span> <span class="nav-text">问题三：项目结构是 Eclipse 结构而非 Android Studio 结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#其他的问题"><span class="nav-number">6.</span> <span class="nav-text">其他的问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Database-中内容显示不全"><span class="nav-number">6.1.</span> <span class="nav-text">Database 中内容显示不全</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy;  2014 - 
+  <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-star"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">6v</span>
+</div>
+
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+  
+  <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.1"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.1"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.1"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.1"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://wliu6v.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'http://wliu6v.github.io/Add-stetho-in-Android-Apps/';
+          this.page.identifier = 'Add-stetho-in-Android-Apps/';
+          this.page.title = 'Add stetho in Android Apps';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://wliu6v.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+</body>
+</html>
