@@ -8,7 +8,9 @@ tags: [Git]
 
 <!-- more -->
 
-## Git Clean
+#
+
+# Git Clean
 
 当切换分支到 gitignore 改动的版本时，通常会导致 git 记录一些 untracked files，导致无法正常返回到原分支状态。此时需要将 untracked files 先移除掉。
 
@@ -19,7 +21,7 @@ tags: [Git]
 
 如果只删除 gitignore 包含的文件，使用 -x
 
-## Rewrite History
+# Rewrite History
 
 参考自 ： [Git Community Book 中文版](http://gitbook.liuhui998.com/4_3.html)
 
@@ -31,13 +33,13 @@ tags: [Git]
 
 在编辑结束后（:wq 保存并退出），git 会开始执行 rebase 操作，在遇到 splash、edit 等状态时，会暂停 rebase 过程。
 
-##	How to skip “Loose Object” popup when running 'git gui'
+#	How to skip “Loose Object” popup when running 'git gui'
 
 	git config --global gui.gcwarning false
 
 [see stackoverflow](http://stackoverflow.com/questions/1106529/how-to-skip-loose-object-popup-when-running-git-gui)
 
-##	禁用快速合并
+#	禁用快速合并
 
 [ref:Git分支管理策略](http://www.ruanyifeng.com/blog/2012/07/git.html)
 [ref:Understanding the Git Workflow](https://sandofsky.com/blog/git-workflow.html)
@@ -54,7 +56,7 @@ Git 在合并的时候默认的是使用快速合并。这样的话，如果当�
 
 	git config --global merge.ff no
 
-##	How to remember username and password
+#	How to remember username and password
 
 在存放 .gitconfig 的文件夹中（通常为 C:/User/xxxx )，新建一个文件名为 `.git-credentials` （不能直接新建或者重命名，需用 cmd）。然后将其内容修改为： 
 
@@ -65,8 +67,12 @@ Git 在合并的时候默认的是使用快速合并。这样的话，如果当�
 	[credential]
 		helper = store
 
+##  如何同时对多个账户进行配置
 
-##	在 Git Gui 中添加部分命令
+see [Config Multi GitHub Account on Windows](2017-10-26-Config-Multi-GitHub-Account-on-Windows.md)
+
+
+#	在 Git Gui 中添加部分命令
 
 此内容仅适用于 Git Gui 工具。
 
@@ -98,7 +104,7 @@ Git 在合并的时候默认的是使用快速合并。这样的话，如果当�
 
 	encoding = utf-8
 
-## 参考资料
+# 参考资料
 
 - [Git Book](http://git-scm.com/book/en/v2)  
 - [Git Book 中文版](http://git-scm.com/book/zh/v2)
