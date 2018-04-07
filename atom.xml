@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://wliu6v.github.io/"/>
-  <updated>2018-04-06T16:14:08.662Z</updated>
+  <updated>2018-04-07T09:22:45.645Z</updated>
   <id>http://wliu6v.github.io/</id>
   
   <author>
@@ -15,6 +15,28 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Android 虚拟按键在不同版本上的位置问题</title>
+    <link href="http://wliu6v.github.io/Android-Navigation-Bar-Position/"/>
+    <id>http://wliu6v.github.io/Android-Navigation-Bar-Position/</id>
+    <published>2017-12-03T03:42:47.000Z</published>
+    <updated>2018-04-07T09:22:45.645Z</updated>
+    
+    <content type="html"><![CDATA[<blockquote><p>当 Android 手机设备进行横屏状态时，其虚拟按键的位置在不同版本上位置可能不同。</p></blockquote><a id="more"></a><h1 id="问题描述"><a href="#问题描述" class="headerlink" title="问题描述"></a>问题描述</h1><p>应用里面为了实现全局的右滑返回效果而引入了一个 SwipeBack 库 （<a href="https://github.com/ikew0ng/SwipeBackLayout" target="_blank" rel="noopener">GitHub - SwipeBackLayout</a>），然后将基类的 Activity 直接继承自 SwipeBackActivity。这之后就发现在 Android 7.0 的手机上横屏时，整个布局都向屏幕左侧移动了一些，导致左边被虚拟按键给挡住了。效果如下图：</p><p><img src="/img/Android-Navigation-Bar/Android-Navigation-Bar-1.png" alt="左边被挡住了"></p><p>经反复测试后发现，只有在 Android 7.0 及以上版本的手机设备上，将设备顺时针旋转 90 度后才会出现该问题。如果是逆时针旋转、6.0 及以下设备、或者平板设备都不会有这个问题。这是因为从 Android 7.0 开始，虚拟按键的位置在横屏状态下发生了变化。在以前版本的手机设备中，横屏时的虚拟按键总是在屏幕右侧，而 Android 7.0 将虚拟按键在横屏状态下的位置改为了“总是接近设备底部”。就是说，如果手机顺时针旋转 90 度，此时设备底部在左侧，虚拟按键也就随之出现在左侧。而如果是逆时针旋转 90 度则在右侧，跟以前一样。</p><p>见下图，上面是 Android 6.0 设备，下图是 7.0。</p><p><img src="/img/Android-Navigation-Bar/Android-Navigation-Bar-2.png" alt="对比图"></p><p>此外，平板设备上因为虚拟按键总在屏幕底部，所以也不存在该问题。</p><h1 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h1><p>这个 SwipeBackActivity 的实现方式是在 <code>Activity.onPostCreate</code> 的时候，获取布局根层的 DecorView，将其子 view 作为 swipeBackLayout 的子 view，然后再将 swipeBackLayout 插进 DecorView 中。从而做到在不修改 layout 文件的情况下将 swipeBackLayout 变成根 view。从这个实现方式上很显然可以猜到，这个替换的过程导致了布局的异常。因此要解决该问题，容易想到的一个方式就是直接在每个 acitivty 的布局里面写上 swipeBackLayout，不使用这种 onPostCreate 时强行修改根布局的方式即可。但是那样的话要修改的地方太多，我们还是希望在原先的基础上做尽量少的改动将问题解决。因此我们考虑在 SwipeBackLayout 上将布局移动到正确的位置。</p><p>首先是考虑如何获取虚拟按键当前在屏幕上的位置，在 <a href="http://androidxref.com/7.0.0_r1/xref/frameworks/base/core/java/com/android/internal/policy/DecorView.java#998" target="_blank" rel="noopener">AndroidXRef</a> 上从 Android 源码一层层跟进去之后发现实现过于复杂，因此直接用现有的信息进行条件判断： Android 7.0 以上、手机设备，顺时针旋转 90 度。</p><p>知道了虚拟按键的位置之后就要计算虚拟按键的高度。我们可以通过 WindowManager 中 getdefaultDisplay 之后的 <code>getRealSize</code> 和 <code>getSize</code> 这两个方法进行计算。</p><p>最后主要的代码如下：</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">protected void onLayout(boolean changed, int left, int top, int right, int bottom) &#123;</span><br><span class="line">    mInLayout = true;</span><br><span class="line">    if (mContentView != null) &#123;</span><br><span class="line">        mContentLeft = getLeftPadding(mActivity);</span><br><span class="line">        mContentView.layout(mContentLeft, mContentTop,</span><br><span class="line">                mContentLeft + mContentView.getMeasuredWidth(),</span><br><span class="line">                mContentTop + mContentView.getMeasuredHeight());</span><br><span class="line">    &#125;</span><br><span class="line">    mInLayout = false;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">private int getLeftPadding(Context context) &#123;</span><br><span class="line"></span><br><span class="line">    // 1. Android Version &gt;= 7.0</span><br><span class="line">    if (Build.VERSION.SDK_INT &lt; Build.VERSION_CODES.N) &#123;</span><br><span class="line">        return 0;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // 2. Is Mobile Phone</span><br><span class="line">    if (context.getResources().getConfiguration().smallestScreenWidthDp &gt;= 600) &#123;</span><br><span class="line">        return 0;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // 3. is 270 rotation</span><br><span class="line">    int screenAngle = getScreenRotationAngle(context);</span><br><span class="line">    if (screenAngle != Surface.ROTATION_270) &#123;</span><br><span class="line">        return 0;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    // 4. get navigation height</span><br><span class="line">    return getNavigationBarHeight(context);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">public int getNavigationBarHeight(Context context) &#123;</span><br><span class="line">    WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);</span><br><span class="line">    if (wm == null) &#123;</span><br><span class="line">        return 0;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    Display display = wm.getDefaultDisplay();</span><br><span class="line"></span><br><span class="line">    Point devicePoint = new Point();</span><br><span class="line">    display.getRealSize(devicePoint);</span><br><span class="line"></span><br><span class="line">    Point appPoint = new Point();</span><br><span class="line">    display.getSize(appPoint);</span><br><span class="line"></span><br><span class="line">    if (appPoint.x &lt; devicePoint.x) &#123; // landscape</span><br><span class="line">        return devicePoint.x - appPoint.x;</span><br><span class="line">    &#125; else if (appPoint.y &lt; devicePoint.y) &#123; // portrait</span><br><span class="line">        return devicePoint.y - appPoint.y;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">public int getScreenRotationAngle(Context context) &#123;</span><br><span class="line">    WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);</span><br><span class="line">    if (wm == null) &#123;</span><br><span class="line">        return Surface.ROTATION_0;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    Display display = wm.getDefaultDisplay();</span><br><span class="line">    return display.getRotation();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>BTW，<strong>设备</strong>顺时针旋转 90 度意味着<strong>屏幕上的内容</strong>要顺时针旋转 270 度，因此上面对于旋转角度的判断是 ROTATION_270 而非 ROTATION_90。</p><h1 id="Ref"><a href="#Ref" class="headerlink" title="Ref"></a>Ref</h1><ul><li><a href="https://stackoverflow.com/questions/21057035/detect-android-navigation-bar-orientation" target="_blank" rel="noopener">Detect Android Navigation Bar orientation</a></li><li><a href="https://stackoverflow.com/questions/36514167/how-to-really-get-the-navigation-bar-height-in-android" target="_blank" rel="noopener">How to REALLY get the navigation bar height in Android</a></li></ul>]]></content>
+    
+    <summary type="html">
+    
+      &lt;blockquote&gt;
+&lt;p&gt;当 Android 手机设备进行横屏状态时，其虚拟按键的位置在不同版本上位置可能不同。&lt;/p&gt;
+&lt;/blockquote&gt;
+    
+    </summary>
+    
+    
+      <category term="Android" scheme="http://wliu6v.github.io/tags/Android/"/>
+    
+  </entry>
   
   <entry>
     <title>Config Multi GitHub Account on Windows</title>
@@ -428,27 +450,6 @@
 &lt;p&gt;&lt;img src=&quot;/img/scroll_1.png&quot; alt=&quot;Nested Scroll 示意图&quot;&gt;&lt;/p&gt;
 &lt;p&gt;其中，Header 需要能够随着 ListView 的滚动离开屏幕，但 Tab 会留在界面上面。而且通过点击 Tab，需要可以在不同界面中进行切换。&lt;/p&gt;
 &lt;p&gt;如果不需要可以切换的 Tab 效果，那么我们可以将 Header 与 Tab 都作为 ListView 的 HeaderView 来实现。但是如果要能够实现 Tab 切换的话，显然我们不能将 Header 对于每个 Tab 中的 ListView 都作为 HeaderView。因此只能将 Tab 与下面的 ListView 视作是同级的控件，然后在外面嵌套一层 ScrollView。&lt;/p&gt;
-    
-    </summary>
-    
-    
-      <category term="Android" scheme="http://wliu6v.github.io/tags/Android/"/>
-    
-  </entry>
-  
-  <entry>
-    <title>Eclipse to AndroidStudio</title>
-    <link href="http://wliu6v.github.io/Eclipse-to-AndroidStudio/"/>
-    <id>http://wliu6v.github.io/Eclipse-to-AndroidStudio/</id>
-    <published>2014-09-11T16:11:56.000Z</published>
-    <updated>2016-05-28T01:59:15.238Z</updated>
-    
-    <content type="html"><![CDATA[<h3 id="1-从-Eclipse-中-Export-项目"><a href="#1-从-Eclipse-中-Export-项目" class="headerlink" title="1. 从 Eclipse 中 Export 项目"></a>1. 从 Eclipse 中 Export 项目</h3><p>在需要点击的项目上点击右键，选择 Export，选择 Android - Generater Gradle build files，然后 Next。</p><p>如果无此选项，说明 ADT 版本过低，需要去 <a href="http://developer.android.com/sdk/index.html" target="_blank" rel="noopener">Google Developer</a> 下载较新的版本。</p><a id="more"></a><p><img src="/img/Eclipse2AndroidStudio_1.png" alt=""></p><h3 id="2-勾选需要生成-Gradle-的项目"><a href="#2-勾选需要生成-Gradle-的项目" class="headerlink" title="2. 勾选需要生成 Gradle 的项目"></a>2. 勾选需要生成 Gradle 的项目</h3><p>这里选择有哪些项目需要生成 Gradle。此处应将项目所依赖的其他项目一并勾选。之后一路 Next。成功之后会提示生成的 build.gradle 的位置。</p><p><img src="/img/Eclipse2AndroidStudio_2.png" alt=""></p><h3 id="3-用-Android-Studio-打开-build-gradle"><a href="#3-用-Android-Studio-打开-build-gradle" class="headerlink" title="3. 用 Android Studio 打开 build.gradle"></a>3. 用 Android Studio 打开 build.gradle</h3><p>此处需要注意的是，用 Android Studio 打开的不能使整个工程，而是在上一步中所生成的 build.gradle 的位置。</p><p>如下图，此时我们选择的不应该是 demo 或者 library，而是 build.gradle 文件。在 demo 目录与 library 目录下可能也会有 build.gradle 文件，但我们只需要包含外层的这个即可。</p><p>在执行此操作时可能会提示选择 Gradle，按照默认选择即可 (Use default gradle wrapper)，之后可能要下载 Gradle，通常需要下载很久（5~30分钟）</p><p><img src="/img/Eclipse2AndroidStudio_3.png" alt=""></p>]]></content>
-    
-    <summary type="html">
-    
-      &lt;h3 id=&quot;1-从-Eclipse-中-Export-项目&quot;&gt;&lt;a href=&quot;#1-从-Eclipse-中-Export-项目&quot; class=&quot;headerlink&quot; title=&quot;1. 从 Eclipse 中 Export 项目&quot;&gt;&lt;/a&gt;1. 从 Eclipse 中 Export 项目&lt;/h3&gt;&lt;p&gt;在需要点击的项目上点击右键，选择 Export，选择 Android - Generater Gradle build files，然后 Next。&lt;/p&gt;
-&lt;p&gt;如果无此选项，说明 ADT 版本过低，需要去 &lt;a href=&quot;http://developer.android.com/sdk/index.html&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;Google Developer&lt;/a&gt; 下载较新的版本。&lt;/p&gt;
     
     </summary>
     
