@@ -75,6 +75,10 @@ unset env
 
 要如何查看当前 git 目录所关联的远程主机，用 `git remote -v`
 
+## 5. 对不同的库使用不同的账号身份
+
+每次拉取代码之后，修改 git config --local 的 user.email 和 user.name，避免提交的时候，用 A 账号的信息往 B 的库里面提交了内容。
+
 # ref
 
 - [working-with-ssh-key-passphrases](https://help.github.com/articles/working-with-ssh-key-passphrases/#auto-launching-ssh-agent-on-git-for-windows)

@@ -8,6 +8,12 @@ tags: [Android, Tips]
 
 <!-- more -->
 
+#   Android 4.4 及以下版本不支持 StateListDrawable 与 ColorFilter 同时使用
+
+当需要让按钮在按下的过程中显示不一样状态的情况下，我们可以使用 StateListDrawable。而需要构造具有多种不同背景色的按钮时，我们可以使用 ColorFilter 进行实现。但是在 Android 4.4 及以下版本中，这两者不能共存。如果两个一起使用的话，ColorFilter 会失效。
+
+要解决该问题，可以先将需要使用 ColorFilter 的 Drawable 变成一个 BitMapDrawable，然后再传入 StateListDrawable 中。详细代码见 [ref：statckoverflow](https://stackoverflow.com/questions/28717831/setcolorfilter-broken-on-android-4-working-on-android-5/32048294)。 但是看起来这个方案效率太低，考虑到 4.4 及以下的设备较少，可以考虑只使用 ColorFilter 实现背景色的效果，剔除掉 StateListDrawable 的效果。
+
 # Update Android Sdk by Command Line ( update 17.07.20 )
 
 ## 1. 更新已经安装的 sdk
