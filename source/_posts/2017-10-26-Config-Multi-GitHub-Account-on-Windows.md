@@ -90,7 +90,7 @@ IdentityFile ~/.ssh/id_rsa_your_email_2
 
 之后在进行 git clone 的时候就可以选择 ssh 地址。如果是本地已经存在的库，可以通过 `git remote set-url` 命令进行修改。 `git remote set-url origin [source]`
 
-这里要注意，默认的地址是类似于 `git@github.com:someusername/somereponame.git` 的形式。这里需要将其中的 `github.com` 根据我们所需要的账号，配置成 config 文件里面对应的 Host 名字。比如说我们如果这里希望使用 email_2 的身份，那么就要将地址改成 `git@github.com-account2:someusername/somereponame.git` 。
+这里要注意，默认的地址是类似于 ` git@github.com:someusername/somereponame.git ` 的形式。这里需要将其中的 `github.com` 根据我们所需要的账号，配置成 config 文件里面对应的 Host 名字。比如说我们如果这里希望使用 email_2 的身份，那么就要将地址改成 ` git@github.com-account2:someusername/somereponame.git ` 。
 
 然后我们还要修改 git config --local 的 user.email 和 user.name，避免提交的时候，用 A 账号的信息往 B 的库里面提交了内容。
 
