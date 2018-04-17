@@ -69,15 +69,32 @@ unset env
 
 ![ssh-keygen -t rsa -C "your_email_1@gmail.com"](/img/Config-Multi-GitHub-Account-on-Windows/Config-Multi-GitHub-Account-4.png)
 
-## 4. 用 ssh 连接替代 http 连接。
+## 4. 将不同的账号配置一个不同的 Host 别名。
 
-之后在进行 git clone 的时候就可以选择 ssh 地址。如果是本地已经存在的库，可以通过 `git remote set-url` 命令进行修改。 `git remote set-url origin git@github.com:foo/bar.git`
+在 ~/.ssh 目录下 ( Windows 下的 ~ 目录就是 C:\Users\user_name 目录) 创建一个名为 config 的问题，然后在里面添加以下内容：
 
-要如何查看当前 git 目录所关联的远程主机，用 `git remote -v`
+```
+Host github.com-account1
+HostName github.com
+User git
+IdentityFile ~/.ssh/id_rsa_your_email_1
+
+#another account
+Host github.com-account2
+HostName github.com
+User git
+IdentityFile ~/.ssh/id_rsa_your_email_2
+```
 
 ## 5. 对不同的库使用不同的账号身份
 
-每次拉取代码之后，修改 git config --local 的 user.email 和 user.name，避免提交的时候，用 A 账号的信息往 B 的库里面提交了内容。
+之后在进行 git clone 的时候就可以选择 ssh 地址。如果是本地已经存在的库，可以通过 `git remote set-url` 命令进行修改。 `git remote set-url origin [source]`
+
+这里要注意，默认的地址是类似于 `git@github.com:someusername/somereponame.git` 的形式。这里需要将其中的 `github.com` 根据我们所需要的账号，配置成 config 文件里面对应的 Host 名字。比如说我们如果这里希望使用 email_2 的身份，那么就要将地址改成 `git@github.com-account2:someusername/somereponame.git` 。
+
+然后我们还要修改 git config --local 的 user.email 和 user.name，避免提交的时候，用 A 账号的信息往 B 的库里面提交了内容。
+
+要如何查看当前 git 目录所关联的远程主机，用 `git remote -v`
 
 # ref
 
