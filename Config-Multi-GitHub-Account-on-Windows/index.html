@@ -103,7 +103,7 @@
 <meta property="og:image" content="http://wliu6v.github.io/img/Config-Multi-GitHub-Account-on-Windows/Config-Multi-GitHub-Account-5.png">
 <meta property="og:image" content="http://wliu6v.github.io/img/Config-Multi-GitHub-Account-on-Windows/Config-Multi-GitHub-Account-3.png">
 <meta property="og:image" content="http://wliu6v.github.io/img/Config-Multi-GitHub-Account-on-Windows/Config-Multi-GitHub-Account-4.png">
-<meta property="og:updated_time" content="2018-04-17T16:20:42.116Z">
+<meta property="og:updated_time" content="2018-04-17T16:24:37.740Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Config Multi GitHub Account on Windows">
 <meta name="twitter:description" content="用 .git-credentials 文件的方式只能对每个站点配置一个账号。如果希望为同一个站点（比如 Github）配置两个账号的话需要用 ssh 实现。">
@@ -376,7 +376,7 @@
 <h2 id="4-将不同的账号配置一个不同的-Host-别名。"><a href="#4-将不同的账号配置一个不同的-Host-别名。" class="headerlink" title="4. 将不同的账号配置一个不同的 Host 别名。"></a>4. 将不同的账号配置一个不同的 Host 别名。</h2><p>在 ~/.ssh 目录下 ( Windows 下的 ~ 目录就是 C:\Users\user_name 目录) 创建一个名为 config 的问题，然后在里面添加以下内容：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">Host github.com-account1</span><br><span class="line">HostName github.com</span><br><span class="line">User git</span><br><span class="line">IdentityFile ~/.ssh/id_rsa_your_email_1</span><br><span class="line"></span><br><span class="line">#another account</span><br><span class="line">Host github.com-account2</span><br><span class="line">HostName github.com</span><br><span class="line">User git</span><br><span class="line">IdentityFile ~/.ssh/id_rsa_your_email_2</span><br></pre></td></tr></table></figure>
 <h2 id="5-对不同的库使用不同的账号身份"><a href="#5-对不同的库使用不同的账号身份" class="headerlink" title="5. 对不同的库使用不同的账号身份"></a>5. 对不同的库使用不同的账号身份</h2><p>之后在进行 git clone 的时候就可以选择 ssh 地址。如果是本地已经存在的库，可以通过 <code>git remote set-url</code> 命令进行修改。 <code>git remote set-url origin [source]</code></p>
-<p>这里要注意，默认的地址是类似于 <a href="mailto:`git@github.com" target="_blank" rel="noopener">`git@github.com</a>:someusername/somereponame.git<code>的形式。这里需要将其中的</code>github.com<code>根据我们所需要的账号，配置成 config 文件里面对应的 Host 名字。比如说我们如果这里希望使用 email_2 的身份，那么就要将地址改成</code><a href="mailto:git@github.com-account2" target="_blank" rel="noopener">git@github.com-account2</a>:someusername/somereponame.git` 。</p>
+<p>这里要注意，默认的地址是类似于 <code>git@github.com:someusername/somereponame.git</code> 的形式。这里需要将其中的 <code>github.com</code> 根据我们所需要的账号，配置成 config 文件里面对应的 Host 名字。比如说我们如果这里希望使用 email_2 的身份，那么就要将地址改成 <code>git@github.com-account2:someusername/somereponame.git</code> 。</p>
 <p>然后我们还要修改 git config –local 的 user.email 和 user.name，避免提交的时候，用 A 账号的信息往 B 的库里面提交了内容。</p>
 <p>要如何查看当前 git 目录所关联的远程主机，用 <code>git remote -v</code></p>
 <h1 id="ref"><a href="#ref" class="headerlink" title="ref"></a>ref</h1><ul>
